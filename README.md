@@ -1,5 +1,4 @@
-# UCHelpers
-## A RootCore Package
+# UCHelpers <span style="font-size: 12px; color: #CCC;">A RootCore Package</span>
 
 ### Dependencies
  - dependencies are in [cmt/Makefile.RootCore](cmt/Makefile.RootCore)
