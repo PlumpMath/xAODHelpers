@@ -1,11 +1,22 @@
 # UCHelpers - A RootCore Package
 
-### Dependencies
+## Installing
+The last stable analysis base used is **2.0.18**. To install,
+```bash
+mkdir myRootCore && cd myRootCore
+rcSetup Base,2.0.18
+git clone git@github.com:kratsg/UCHelpers.git
+rc find_packages
+rc compile_pkg UCHelpers
+```
+
+## Dependencies
  - dependencies are in [cmt/Makefile.RootCore](cmt/Makefile.RootCore)
  - uses Miles [JetSubstructureTools](https://github.com/mileswu/JetSubstructureTools) which is included in AnalysisBase 2.0.18+ _except for SubjetFinder_.
 
-### RootCore Analysis Base
-The last stable analysis base release tested against is **2.0.18**.
+### Functionality Included
+ - `HistogramManager` helps manage histograms in `EventLoop` algorithms by initializing histograms and adding it to the worker.
+ - `JetKinematics` is an `EventLoop` algorithm used to automate the creation of histograms for a given jet container. See [makeJetKinematics.cxx](util/makeJetKinematics.cxx) for an example.
 
 #### Authors
 - [Giordon Stark](https://github.com/kratsg)
