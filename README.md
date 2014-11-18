@@ -2,7 +2,11 @@
 ## A RootCore Package
 
 ### Dependencies
-All dependencies are in [cmt/Makefile.RootCore](cmt/Makefile.RootCore). This also uses Miles [JetSubstructureTools](https://github.com/mileswu/JetSubstructureTools) which is included in AnalysisBase 2.0.18+ _except for SubjetFinder_.
+ - dependencies are in [cmt/Makefile.RootCore](cmt/Makefile.RootCore)
+ - uses Miles [JetSubstructureTools](https://github.com/mileswu/JetSubstructureTools) which is included in AnalysisBase 2.0.18+ _except for SubjetFinder_.
+
+### RootCore Analysis Base
+The last stable analysis base release tested against is **2.0.18**.
 
 ##### Authors
 - [Giordon Stark](https://github.com/kratsg)
