@@ -1,5 +1,8 @@
 # UCHelpers
-### A RootCore Package
+## A RootCore Package
+
+### Dependencies
+All dependencies are in [cmt/Makefile.core](cmt/Makefile.core). This also uses Miles [JetSubstructureTools](https://github.com/mileswu/JetSubstructureTools) which is included in AnalysisBase 2.0.18+ _except for SubjetFinder_.
 
 ##### Authors
 - [Giordon Stark](https://github.com/kratsg)
