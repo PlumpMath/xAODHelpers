@@ -17,6 +17,7 @@ rc compile_pkg UCHelpers
 ### Functionality Included
  - `HistogramManager` helps manage histograms in `EventLoop` algorithms by initializing histograms and adding it to the worker.
  - `JetKinematics` is an `EventLoop` algorithm used to automate the creation of histograms for a given jet container. See [makeJetKinematics.cxx](util/makeJetKinematics.cxx) for an example.
+ - `dumpSG.py` is a python script (a ROOT macro of sorts) used to inspect information about a ROOT file. It should be self-documented via `dumpSG.py --help`.
 
 #### Authors
 - [Giordon Stark](https://github.com/kratsg)
