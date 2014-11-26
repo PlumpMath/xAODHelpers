@@ -36,18 +36,29 @@ int main( int argc, char* argv[] ) {
   job.sampleHandler( sh );
 
   // Add our analysis to the job:
-  JetKinematics* jk_AntiKt = new JetKinematics();
+  JetKinematics* jk_AntiKt10LC = new JetKinematics();
   /* This is the default container used */
-  //jk_AntiKt->m_jetContainerName = "AntiKt10LCTopoJets"
-  jk_AntiKt->m_jetDisplayName = "AntiKt";
+  jk_AntiKt10LC->m_jetContainerName = "AntiKt10LCTopoJets";
+  jk_AntiKt10LC->m_jetDisplayName = "LC";
 
+  JetKinematics* jk_AntiKt10Truth = new JetKinematics();
+  jk_AntiKt10Truth->m_jetContainerName = "AntiKt10TruthJets";
+  jk_AntiKt10Truth->m_jetDisplayName = "Truth";
+
+  JetKinematics* jk_AntiKt10TruthWZ = new JetKinematics();
+  jk_AntiKt10TruthWZ->m_jetContainerName = "AntiKt10TruthWZJets";
+  jk_AntiKt10TruthWZ->m_jetDisplayName = "TruthWZ";
+
+  /* Doesn't work since this is an xAOD::JetTrigContainer
   JetKinematics* jk_HLT = new JetKinematics();
   jk_HLT->m_jetContainerName = "HLT_xAOD__JetContainer_TrigHLTJetRec";
   jk_HLT->m_jetDisplayName = "HLT";
+  */
 
   // Attach algorithms
-  job.algsAdd( jk_AntiKt );
-  //job.algsAdd( jk_HLT );
+  job.algsAdd( jk_AntiKt10LC );
+  job.algsAdd( jk_AntiKt10Truth );
+  job.algsAdd( jk_AntiKt10TruthWZ );
 
   // Run the job using the local/direct driver:
   EL::DirectDriver driver;

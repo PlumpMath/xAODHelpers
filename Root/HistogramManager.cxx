@@ -1,11 +1,14 @@
 #include "UCHelpers/HistogramManager.h"
 
-HistogramManager::HistogramManager(EL::Worker* wk) {
+HistogramManager::HistogramManager() {}
+HistogramManager::~HistogramManager() {}
+
+void HistogramManager::assign(EL::Worker* wk) {
   m_wk = wk;
 }
 
-HistogramManager::~HistogramManager() {}
 
+/* Main book() functions for 1D, 2D, 3D histograms */
 TH1F* HistogramManager::book(std::string name, std::string title,
                              std::string xlabel, int xbins, double xlow, double xhigh,
                              bool sumw2)
@@ -42,6 +45,7 @@ TH3F* HistogramManager::book(std::string name, std::string title,
   return tmp;
 };
 
+/* Helper functions */
 void HistogramManager::Sumw2(TH1* hist) {
   hist->Sumw2();
 };
@@ -69,5 +73,5 @@ void HistogramManager::SetLabel(TH1* hist, std::string xlabel, std::string ylabe
 
 std::string HistogramManager::GetName(std::string name)
 {
-  return this->namePrefix+this->delimiter+name+this->delimiter+this->namePostfix;
+  return m_namePrefix+m_delimiter+name+m_delimiter+m_namePostfix;
 };
