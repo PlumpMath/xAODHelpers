@@ -6,6 +6,9 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 
+// ElementLink
+#include "AthLinks/ElementLink.h"
+
 
 // for histograms
 #include <TH1.h>
@@ -33,6 +36,7 @@ public:
   // topological (eg: per event)
   TH1 *h_numJets; //!
   TH1 *h_numSubjets; //!
+  TH1 *h_numbtags; //!
   // scattering angle of two highest pt jets in CoM frame
   // number of top tags
   // number of W tags
@@ -47,6 +51,8 @@ public:
   TH1 *h_jetDip13; //!
   TH1 *h_jetDip23; //!
   TH1 *h_jet_numSubjets; //!
+
+  TH1 *h_jet_btags_p; //!
 
   // this is a standard constructor
   JetKinematics ();

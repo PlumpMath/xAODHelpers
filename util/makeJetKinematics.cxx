@@ -47,7 +47,7 @@ int main( int argc, char* argv[] ) {
 
   // Attach algorithms
   job.algsAdd( jk_AntiKt );
-  job.algsAdd( jk_HLT );
+  //job.algsAdd( jk_HLT );
 
   // Run the job using the local/direct driver:
   EL::DirectDriver driver;
