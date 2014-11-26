@@ -67,7 +67,9 @@ def inspect_tree(t):
   xAOD_AuxContainer_Name = re.compile('(.*)Aux\.$')
   xAOD_Container_Prop = re.compile('(.*)Aux\.([^:]+)$')
   xAOD_Container_Attr = re.compile('(.*)AuxDyn\.([^:]+)$')
-  xAOD_Type_Name = re.compile('^(?:vector<)?(.+?)(?: ?> ?)?$')
+  xAOD_Type_Name = re.compile('^(vector<)?(.+?)(?(1)(?: ?>))$')
+  xAOD_remove_version = re.compile('_v\d+')
+  xAOD_Grab_Inner_Type = re.compile('<([^<>]*)>')
 
   # call them elements, because there are 4 types inside the leaves
   elements = t.GetListOfLeaves()
@@ -77,13 +79,13 @@ def inspect_tree(t):
     # get the name of the element
     elName = el.GetName()
     # filter its type out
-    elType = xAOD_Type_Name.match(el.GetTypeName()).groups()[0].replace('Aux','').split('_')[0]
+    elType = xAOD_remove_version.sub('', xAOD_Type_Name.search(el.GetTypeName()).groups()[1].replace('Aux','') )
 
     # match the name against the 4 elements we care about, figure out which one it is next
-    m_cont_name = xAOD_Container_Name.match(elName)
-    m_aux_name = xAOD_AuxContainer_Name.match(elName)
-    m_cont_prop = xAOD_Container_Prop.match(elName)
-    m_cont_attr = xAOD_Container_Attr.match(elName)
+    m_cont_name = xAOD_Container_Name.search(elName)
+    m_aux_name = xAOD_AuxContainer_Name.search(elName)
+    m_cont_prop = xAOD_Container_Prop.search(elName)
+    m_cont_attr = xAOD_Container_Attr.search(elName)
 
     # set the type
     if m_aux_name:
@@ -96,7 +98,12 @@ def inspect_tree(t):
     # set the attribute
     elif m_cont_attr:
       container, attribute = m_cont_attr.groups()
-      xAOD_Objects[container]['attr'].append({'name': attribute, 'type': elType})
+      if 'btagging' in attribute.lower():
+        attribute = attribute.replace('Link','')
+        elType = xAOD_Grab_Inner_Type.search(elType).groups()[0] + ' *'
+        xAOD_Objects[container]['prop'].append({'name': attribute, 'type': elType})
+      else:
+        xAOD_Objects[container]['attr'].append({'name': attribute, 'type': elType})
   return xAOD_Objects
 
 def filter_xAOD_objects(xAOD_Objects, args):
@@ -116,6 +123,7 @@ def dump_pretty(xAOD_Objects, f):
       # check if it is not the start
       if not currContainerType == '':
         f.write('  %s\n\n' % ('-'*20))
+      f.write('http://atlas-computing.web.cern.ch/atlas-computing/links/nightlyDocDirectory/%s/html/\n' % Elements['type'].replace(':','').replace('Container',''))
       f.write('%s\n' % Elements['type'])
       currContainerType = Elements['type']
 
