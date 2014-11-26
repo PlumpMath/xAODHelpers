@@ -45,7 +45,7 @@ class JetHists : public HistogramManager {
 
 
   private:
-
+    bool isTrigger();
 };
 
 #endif

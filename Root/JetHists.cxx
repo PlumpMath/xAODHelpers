@@ -29,8 +29,11 @@ void JetHists::book(bool sumw2) {
 }
 
 EL::StatusCode JetHists::fill() {
+  bool isTrig = isTrigger();
   // get jet container of interest
-  const xAOD::JetContainer* jets = 0;
+  typedef const xAOD::JetContainer* jet_t;
+
+  jet_t jets = 0;
   if ( !m_wk->xaodEvent()->retrieve( jets, m_containerName.c_str() ).isSuccess() ){ // retrieve arguments: container type, contain        er key
     Error("execute()", "Failed to retrieve %s. Exiting.", m_containerName.c_str() );
     return EL::StatusCode::FAILURE;
@@ -73,16 +76,18 @@ EL::StatusCode JetHists::fill() {
 
     h_jet_numSubjets->Fill( subjets.size() );
 
-    // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODBTagging/xAODBTagging/versions/BTagging_v1.h
-    const xAOD::BTagging* btag = (*jet_itr)->btagging();
-    if(btag){
-      const double prob = btag->JetFitterCombNN_pb();
-      h_jet_btags_p->Fill( prob );
-      if(prob > 0.5){
-        numBTags += 1;
+    if(!isTrig){
+      // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODBTagging/xAODBTagging/versions/BTagging_v1.h
+      const xAOD::BTagging* btag = (*jet_itr)->btagging();
+      if(btag){
+        const double prob = btag->JetFitterCombNN_pb();
+        h_jet_btags_p->Fill( prob );
+        if(prob > 0.5){
+          numBTags += 1;
+        }
+      } else {
+        Info("execute()", "Could not get the btagging informationa");
       }
-    } else {
-      Info("execute()", "Could not get the btagging informationa");
     }
 
   }
@@ -93,4 +98,9 @@ EL::StatusCode JetHists::fill() {
 
   return EL::StatusCode::SUCCESS;
 
+}
+
+bool JetHists::isTrigger(){
+  // http://stackoverflow.com/a/2340309
+  return (m_containerName.find(std::string("Trig")) != std::string::npos);
 }

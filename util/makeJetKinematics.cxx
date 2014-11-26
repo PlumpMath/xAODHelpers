@@ -49,16 +49,16 @@ int main( int argc, char* argv[] ) {
   jk_AntiKt10TruthWZ->m_jetContainerName = "AntiKt10TruthWZJets";
   jk_AntiKt10TruthWZ->m_jetDisplayName = "TruthWZ";
 
-  /* Doesn't work since this is an xAOD::JetTrigContainer
+  // Doesn't work since this is an xAOD::JetTrigContainer
   JetKinematics* jk_HLT = new JetKinematics();
   jk_HLT->m_jetContainerName = "HLT_xAOD__JetContainer_TrigHLTJetRec";
   jk_HLT->m_jetDisplayName = "HLT";
-  */
 
   // Attach algorithms
   job.algsAdd( jk_AntiKt10LC );
   job.algsAdd( jk_AntiKt10Truth );
   job.algsAdd( jk_AntiKt10TruthWZ );
+  job.algsAdd( jk_HLT );
 
   // Run the job using the local/direct driver:
   EL::DirectDriver driver;
