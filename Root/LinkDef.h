@@ -1,4 +1,5 @@
 #include <UCHelpers/JetKinematics.h>
+#include <UCHelpers/ElectronKinematics.h>
 
 #ifdef __CINT__
 
@@ -9,4 +10,5 @@
 
 /* Add a pragma link for any EventLoop algorithm */
 #pragma link C++ class JetKinematics+;
+#pragma link C++ class ElectronKinematics+;
 #endif
