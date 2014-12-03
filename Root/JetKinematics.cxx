@@ -37,8 +37,8 @@ EL::StatusCode JetKinematics :: histInitialize ()
 
   Info("histInitialize()", "%s", m_jetContainerName.c_str());
 
-  // book with sumw2=true
-  m_histManager->book();
+  // initialize with sumw2=true
+  m_histManager->initialize();
 
   return EL::StatusCode::SUCCESS;
 }
@@ -88,7 +88,7 @@ EL::StatusCode JetKinematics :: execute ()
     return EL::StatusCode::FAILURE;
   }
 
-  m_histManager->fill();
+  m_histManager->execute();
 
   return EL::StatusCode::SUCCESS;
 }
@@ -104,11 +104,6 @@ EL::StatusCode JetKinematics :: postExecute ()
 
 EL::StatusCode JetKinematics :: finalize ()
 {
-  Info("finalize()", "%d/%lli events", m_eventCounter, m_numEvents);
-  if(m_histManager){
-    delete m_histManager;
-    m_histManager = 0;
-  }
   return EL::StatusCode::SUCCESS;
 }
 
@@ -116,5 +111,11 @@ EL::StatusCode JetKinematics :: finalize ()
 
 EL::StatusCode JetKinematics :: histFinalize ()
 {
+  m_histManager->finalize();
+  Info("finalize()", "%d/%lli events", m_eventCounter, m_numEvents);
+  if(m_histManager){
+    delete m_histManager;
+    m_histManager = 0;
+  }
   return EL::StatusCode::SUCCESS;
 }

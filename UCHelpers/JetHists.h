@@ -11,10 +11,10 @@ class JetHists : public HistogramManager {
     JetHists();
     ~JetHists();
 
-    void book(bool sumw2 = true);
+    EL::StatusCode initialize(bool sumw2 = true);
+    EL::StatusCode execute();
+    EL::StatusCode finalize();
     using HistogramManager::book; // make other overloaded versions of book() to show up in subclass
-
-    EL::StatusCode fill();
 
     // basics
     TH1 *h_jetPt; //!
@@ -25,7 +25,7 @@ class JetHists : public HistogramManager {
     // topological (eg: per event)
     TH1 *h_numJets; //!
     TH1 *h_numSubjets; //!
-    TH1 *h_numbtags; //!
+
     // scattering angle of two highest pt jets in CoM frame
     // number of top tags
     // number of W tags
@@ -41,8 +41,9 @@ class JetHists : public HistogramManager {
     TH1 *h_jetDip23; //!
     TH1 *h_jet_numSubjets; //!
 
-    TH1 *h_jet_btags_p; //!
-
+    /* http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODBTagging/xAODBTagging/versions/BTagging_v1.h */
+    // btagging
+    TH1 *h_mv1_discriminant; //!
 
   private:
     bool isTrigger();

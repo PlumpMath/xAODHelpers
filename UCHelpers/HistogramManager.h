@@ -18,8 +18,11 @@ class HistogramManager {
 
     // this is used by any class extending to pre-define a set of histograms
     //      to book by default
-    virtual void book(bool sumw2 = true){};
-    virtual EL::StatusCode fill(){ return EL::StatusCode::SUCCESS; };
+    //  the following should be defined in other classes
+    virtual EL::StatusCode initialize(bool sumw2 = true){ return EL::StatusCode::SUCCESS; };
+    virtual EL::StatusCode execute(){ return EL::StatusCode::SUCCESS; };
+    virtual EL::StatusCode finalize(){ return EL::StatusCode::SUCCESS; };
+
     // @assign assigns the worker that manages the algorithms, usually just pass in wk()
     void assign(EL::Worker* wk);
 
@@ -63,17 +66,17 @@ class HistogramManager {
 
   private:
     // Turn on Sumw2 for the histogram
-    virtual void Sumw2(TH1* hist);
+    void Sumw2(TH1* hist);
     // Record the histogram on the worker
-    virtual void record(TH1* hist);
+    void record(TH1* hist);
     // Set the xlabel
-    virtual void SetLabel(TH1* hist, std::string xlabel);
+    void SetLabel(TH1* hist, std::string xlabel);
     // Set the xlabel, ylabel
-    virtual void SetLabel(TH1* hist, std::string xlabel, std::string ylabel);
+    void SetLabel(TH1* hist, std::string xlabel, std::string ylabel);
     // Set the xlabel, ylabel, and zlabel
-    virtual void SetLabel(TH1* hist, std::string xlabel, std::string ylabel, std::string zlabel);
+    void SetLabel(TH1* hist, std::string xlabel, std::string ylabel, std::string zlabel);
     // Creates the histogram name using @namePrefix, @namePostfix, and @delimiter above
-    virtual std::string GetName(std::string name);
+    std::string GetName(std::string name);
 
 };
 

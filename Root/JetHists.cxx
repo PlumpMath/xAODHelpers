@@ -8,28 +8,29 @@
 JetHists::JetHists() {}
 JetHists::~JetHists() {}
 
-void JetHists::book(bool sumw2) {
-  h_jetPt           = book("jetPt", "Transverse Momentum", "{p}_{t} [GeV]", 100, 0, 500, sumw2);
-  h_jetM            = book("jetM" , "Mass", "{m} [GeV]", 100, 0, 500, sumw2);
-  h_jetEta          = book("jetEta", "Eta", "\\eta", 100, -4.9, 4.9, sumw2);
-  h_jetPhi          = book("jetPhi", "Phi", "\\phi", 100, -3.2, 3.2, sumw2);
+EL::StatusCode JetHists::initialize(bool sumw2) {
+  h_jetPt           = book("jetPt", m_containerName, "{p}_{t} [GeV]", 100, 0, 500, sumw2);
+  h_jetM            = book("jetM" , m_containerName, "{m} [GeV]", 100, 0, 500, sumw2);
+  h_jetEta          = book("jetEta", m_containerName, "\\eta", 100, -4.9, 4.9, sumw2);
+  h_jetPhi          = book("jetPhi", m_containerName, "\\phi", 100, -3.2, 3.2, sumw2);
 
-  h_numJets         = book("numJets", "Num. Jets per Event", "# jets", 100, 0, 20, sumw2);
-  h_numSubjets      = book("numSubjets", "Num. Subjets per Event", "# subjets", 100, 0, 200, sumw2);
-  h_numbtags        = book("num_btags", "JetFitterCOMBNN_p > 0.5", "JetFitterCOMBNN_p > 0.5", 6, 0.5, 5.5, sumw2);
+  h_numJets         = book("numJets", m_containerName, "# jets", 100, 0, 20, sumw2);
+  h_numSubjets      = book("numSubjets", m_containerName, "# subjets", 100, 0, 200, sumw2);
 
-  h_jetTau1         = book("jetTau1", "Tau1", "{\\tau}_{1}", 100, 0, 1, sumw2);
-  h_jetTau2         = book("jetTau2", "Tau2", "{\\tau}_{2}", 100, 0, 1, sumw2);
-  h_jetTau3         = book("jetTau3", "Tau3", "{\\tau}_{3}", 100, 0, 1, sumw2);
-  h_jetDip12        = book("jetDip12", "Dip12", "{dip}_{12}", 100, 0, 1, sumw2);
-  h_jetDip13        = book("jetDip13", "Dip13", "{dip}_{13}", 100, 0, 1, sumw2);
-  h_jetDip23        = book("jetDip23", "Dip23", "{dip}_{23}", 100, 0, 1, sumw2);
-  h_jet_numSubjets  = book("jet_numSubjets", "Num Subjets per Jet", "# subjets", 100, 0, 10, sumw2);
-  h_jet_btags_p     = book("btags_p", "JetFitterCOMBNN (antiKt Topo LC jets)", "JetFitterCOMBNN (antiKt Topo LC jets)", 100, 0, 1, sumw2);
+  h_jetTau1         = book("jetTau1", m_containerName, "{\\tau}_{1}", 100, 0, 1, sumw2);
+  h_jetTau2         = book("jetTau2", m_containerName, "{\\tau}_{2}", 100, 0, 1, sumw2);
+  h_jetTau3         = book("jetTau3", m_containerName, "{\\tau}_{3}", 100, 0, 1, sumw2);
+  h_jetDip12        = book("jetDip12", m_containerName, "{dip}_{12}", 100, 0, 1, sumw2);
+  h_jetDip13        = book("jetDip13", m_containerName, "{dip}_{13}", 100, 0, 1, sumw2);
+  h_jetDip23        = book("jetDip23", m_containerName, "{dip}_{23}", 100, 0, 1, sumw2);
+  h_jet_numSubjets  = book("jet_numSubjets", m_containerName, "# subjets", 100, 0, 10, sumw2);
+
+  h_mv1_discriminant = book("btag", m_containerName, "MV1 Discriminant", 100, 0, 1, sumw2);
+
+  return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode JetHists::fill() {
-  bool isTrig = isTrigger();
+EL::StatusCode JetHists::execute() {
   // get jet container of interest
   typedef const xAOD::JetContainer* jet_t;
 
@@ -48,7 +49,6 @@ EL::StatusCode JetHists::fill() {
   std::vector<fastjet::PseudoJet> subjets;
 
   long int numSubjets = 0;
-  long int numBTags = 0;
   // loop over the jets
   for( ; jet_itr != jet_end; ++jet_itr ) {
     // basic kinematics
@@ -76,17 +76,27 @@ EL::StatusCode JetHists::fill() {
 
     h_jet_numSubjets->Fill( subjets.size() );
 
-    if(!isTrig){
-      // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODBTagging/xAODBTagging/versions/BTagging_v1.h
-      const xAOD::BTagging* btag = (*jet_itr)->btagging();
-      if(btag){
-        const double prob = btag->JetFitterCombNN_pb();
-        h_jet_btags_p->Fill( prob );
-        if(prob > 0.5){
-          numBTags += 1;
+    if(!isTrigger()){
+      if( (*jet_itr)->isAvailable<int>("TruthLabelID") ){
+        const int truthLabelID = (*jet_itr)->getAttribute<int>("TruthLabelID");
+        // if it is a b-quark
+        if(truthLabelID == 5){
+          // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODBTagging/xAODBTagging/versions/BTagging_v1.h
+          const xAOD::BTagging* btag = (*jet_itr)->btagging();
+          if(bool(btag)){
+            double mv1 = btag->MV1_discriminant();
+            /*
+              http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/JetMissingEtID/JetMissingEtTagTools/src/JetMissingEtTagTool.cxx#0229
+              if (mv1 >  0.9827)  pid |= 1<< 12;      // MV1 @ 60% 
+              if (mv1 >  0.7892)  pid |= 1<< 13;      // MV1 @ 70% 
+              if (mv1 >  0.6073)  pid |= 1<< 14;      // MV1 @ 75% 
+              if (mv1 >  0.1340)  pid |= 1<< 15;      // MV1 @ 85% 
+            */
+            h_mv1_discriminant->Fill( mv1 );
+          } else {
+            Info("execute()", "Could not get the btagging informationa");
+          }
         }
-      } else {
-        Info("execute()", "Could not get the btagging informationa");
       }
     }
 
@@ -94,10 +104,23 @@ EL::StatusCode JetHists::fill() {
 
   h_numJets->Fill( jets->size() );
   h_numSubjets->Fill( numSubjets );
-  h_numbtags->Fill( numBTags+0.5 ); // offset it
 
   return EL::StatusCode::SUCCESS;
 
+}
+
+EL::StatusCode JetHists::finalize() {
+  // called per worker node
+  if(!isTrigger()){
+    // integrate btagging
+    // http://www.hep.shef.ac.uk/teaching/phy6040/ROOT/ROOTseminars/Seminar_3.html
+    TH1* h_int_mv1_discriminant = book("btag_integrated", m_containerName, "MV1 Discriminant", 100, 0, 1, true);
+    h_mv1_discriminant->ComputeIntegral();
+    double* integratedBins = h_mv1_discriminant->GetIntegral();
+    h_int_mv1_discriminant->SetContent(integratedBins);
+    h_int_mv1_discriminant->GetYaxis()->SetTitle("Normalized counts");
+  }
+  return EL::StatusCode::SUCCESS;
 }
 
 bool JetHists::isTrigger(){

@@ -32,7 +32,7 @@ TH2F* HistogramManager::book(std::string name, std::string title,
   return tmp;
 };
 
-TH3F* HistogramManager::book(std::string name, std::string title,
+TH3F* HistogramManager::book(std::string name, std::string title, 
                              std::string xlabel, int xbins, double xlow, double xhigh,
                              std::string ylabel, int ybins, double ylow, double yhigh,
                              std::string zlabel, int zbins, double zlow, double zhigh,
