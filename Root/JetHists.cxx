@@ -1,9 +1,9 @@
 #include <UCHelpers/JetHists.h>
 
+// btagging
+#include "UCHelpers/BTagging.h"
 // subjet finding
 #include "JetSubStructureUtils/SubjetFinder.h"
-// deal with the btagging
-#include "xAODBTagging/BTagging.h"
 
 JetHists::JetHists() {}
 JetHists::~JetHists() {}
@@ -25,7 +25,8 @@ EL::StatusCode JetHists::initialize(bool sumw2) {
   h_jetDip23        = book("jetDip23", m_containerName, "{dip}_{23}", 100, 0, 1, sumw2);
   h_jet_numSubjets  = book("jet_numSubjets", m_containerName, "# subjets", 100, 0, 10, sumw2);
 
-  h_mv1_discriminant = book("btag", m_containerName, "MV1 Discriminant", 100, 0, 1, sumw2);
+  h_mv1_discriminant = book("mv1_discriminant", m_containerName, "MV1 Discriminant", 200, 0, 1, sumw2);
+  h_num_bTags        = book("num_bTags", m_containerName, "Number of B-Tags in Event", 10, 0, 9, sumw2);
 
   return EL::StatusCode::SUCCESS;
 }
@@ -35,7 +36,7 @@ EL::StatusCode JetHists::execute() {
   typedef const xAOD::JetContainer* jet_t;
 
   jet_t jets = 0;
-  if ( !m_wk->xaodEvent()->retrieve( jets, m_containerName.c_str() ).isSuccess() ){ // retrieve arguments: container type, contain        er key
+  if ( !m_wk->xaodEvent()->retrieve( jets, m_containerName.c_str() ).isSuccess() ){ // retrieve arguments: container type, container key
     Error("execute()", "Failed to retrieve %s. Exiting.", m_containerName.c_str() );
     return EL::StatusCode::FAILURE;
   }
@@ -76,6 +77,7 @@ EL::StatusCode JetHists::execute() {
 
     h_jet_numSubjets->Fill( subjets.size() );
 
+
     if(!isTrigger()){
       if( (*jet_itr)->isAvailable<int>("TruthLabelID") ){
         const int truthLabelID = (*jet_itr)->getAttribute<int>("TruthLabelID");
@@ -86,7 +88,7 @@ EL::StatusCode JetHists::execute() {
           if(bool(btag)){
             double mv1 = btag->MV1_discriminant();
             /*
-              http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/JetMissingEtID/JetMissingEtTagTools/src/JetMissingEtTagTool.cxx#0229
+              http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/JetMissingEtID/JetMissingEtTagTools/src/JetMiss        ingEtTagTool.cxx#0229
               if (mv1 >  0.9827)  pid |= 1<< 12;      // MV1 @ 60% 
               if (mv1 >  0.7892)  pid |= 1<< 13;      // MV1 @ 70% 
               if (mv1 >  0.6073)  pid |= 1<< 14;      // MV1 @ 75% 
@@ -99,27 +101,25 @@ EL::StatusCode JetHists::execute() {
         }
       }
     }
-
   }
+
+  jet_t AntiKt4TruthJets;
+  if ( !m_wk->xaodEvent()->retrieve( AntiKt4TruthJets, "AntiKt4TruthJets" ).isSuccess() ){
+    Error("execute()", "Failed to retrieve %s. Exiting.", "AntiKt4TruthJets" );
+    return EL::StatusCode::FAILURE;
+  }
+
+  UCHelpers::BTagging btagger;
+  int num_bTags = btagger.result(AntiKt4TruthJets, 0.8);
 
   h_numJets->Fill( jets->size() );
   h_numSubjets->Fill( numSubjets );
+  h_num_bTags->Fill( num_bTags );
 
   return EL::StatusCode::SUCCESS;
-
 }
 
 EL::StatusCode JetHists::finalize() {
-  // called per worker node
-  if(!isTrigger()){
-    // integrate btagging
-    // http://www.hep.shef.ac.uk/teaching/phy6040/ROOT/ROOTseminars/Seminar_3.html
-    TH1* h_int_mv1_discriminant = book("btag_integrated", m_containerName, "MV1 Discriminant", 100, 0, 1, true);
-    h_mv1_discriminant->ComputeIntegral();
-    double* integratedBins = h_mv1_discriminant->GetIntegral();
-    h_int_mv1_discriminant->SetContent(integratedBins);
-    h_int_mv1_discriminant->GetYaxis()->SetTitle("Normalized counts");
-  }
   return EL::StatusCode::SUCCESS;
 }
 

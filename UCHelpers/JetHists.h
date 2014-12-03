@@ -4,6 +4,7 @@
 #include <UCHelpers/HistogramManager.h>
 #include "xAODJet/JetContainer.h"
 
+
 class JetHists : public HistogramManager {
 
   public:
@@ -25,6 +26,7 @@ class JetHists : public HistogramManager {
     // topological (eg: per event)
     TH1 *h_numJets; //!
     TH1 *h_numSubjets; //!
+    TH1 *h_numBTags; //!
 
     // scattering angle of two highest pt jets in CoM frame
     // number of top tags
@@ -41,9 +43,8 @@ class JetHists : public HistogramManager {
     TH1 *h_jetDip23; //!
     TH1 *h_jet_numSubjets; //!
 
-    /* http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODBTagging/xAODBTagging/versions/BTagging_v1.h */
-    // btagging
     TH1 *h_mv1_discriminant; //!
+    TH1 *h_num_bTags; //!
 
   private:
     bool isTrigger();
