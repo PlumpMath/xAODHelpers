@@ -1,20 +1,20 @@
-#ifndef UCHelpers_BTagging_H
-#define UCHelpers_BTagging_H
+#ifndef UCHelpers_Helpers_H
+#define UCHelpers_Helpers_H
 
 // include AntiKt4Truth Jets for btagging
 #include "xAODJet/JetContainer.h"
 // deal with btagging
 #include "xAODBTagging/BTagging.h"
 
-
 namespace UCHelpers {
 
-  class BTagging {
+  class Helpers {
 
   public:
-    BTagging();
+    Helpers();
+
     // 70% loose efficiency, cut by allowing only those with x >= btag_cut
-    int result (const xAOD::JetContainer* jets, double bTagCut=0.8);
+    int count_event_btags (const xAOD::JetContainer* jets, double bTagCut=0.8);
 
   private:
 

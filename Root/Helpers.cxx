@@ -1,10 +1,10 @@
-#include "UCHelpers/BTagging.h"
+#include "UCHelpers/Helpers.h"
 
-UCHelpers :: BTagging :: BTagging ()
+UCHelpers :: Helpers :: Helpers ()
 {
 }
 
-int UCHelpers::BTagging::result(const xAOD::JetContainer* jets, double bTagCut)
+int UCHelpers::Helpers::count_event_btags(const xAOD::JetContainer* jets, double bTagCut)
 {
   int num_bTags = 0;
   xAOD::JetContainer::const_iterator jet_itr = jets->begin();

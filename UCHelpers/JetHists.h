@@ -26,7 +26,7 @@ class JetHists : public HistogramManager {
     // topological (eg: per event)
     TH1 *h_numJets; //!
     TH1 *h_numSubjets; //!
-    TH1 *h_numBTags; //!
+    TH1 *h_num_bTags; //!
 
     // scattering angle of two highest pt jets in CoM frame
     // number of top tags
@@ -44,7 +44,6 @@ class JetHists : public HistogramManager {
     TH1 *h_jet_numSubjets; //!
 
     TH1 *h_mv1_discriminant; //!
-    TH1 *h_num_bTags; //!
 
   private:
     bool isTrigger();

@@ -1,7 +1,7 @@
 #include <UCHelpers/JetHists.h>
 
 // btagging
-#include "UCHelpers/BTagging.h"
+#include "UCHelpers/Helpers.h"
 // subjet finding
 #include "JetSubStructureUtils/SubjetFinder.h"
 
@@ -103,14 +103,8 @@ EL::StatusCode JetHists::execute() {
     }
   }
 
-  jet_t AntiKt4TruthJets;
-  if ( !m_wk->xaodEvent()->retrieve( AntiKt4TruthJets, "AntiKt4TruthJets" ).isSuccess() ){
-    Error("execute()", "Failed to retrieve %s. Exiting.", "AntiKt4TruthJets" );
-    return EL::StatusCode::FAILURE;
-  }
-
-  UCHelpers::BTagging btagger;
-  int num_bTags = btagger.result(AntiKt4TruthJets, 0.8);
+  UCHelpers::Helpers helpers;
+  int num_bTags = helpers.count_event_btags(jets, 0.8);
 
   h_numJets->Fill( jets->size() );
   h_numSubjets->Fill( numSubjets );

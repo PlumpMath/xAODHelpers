@@ -57,11 +57,8 @@ int main( int argc, char* argv[] ) {
 
   // Attach algorithms
   job.algsAdd( jk_AntiKt10LC );
-  job.algsAdd( jk_AntiKt10Truth );
-  job.algsAdd( jk_AntiKt10TruthWZ );
   job.algsAdd( jk_AntiKt4LC );
   job.algsAdd( jk_AntiKt4Truth );
-  job.algsAdd( jk_AntiKt4TruthWZ );
 
 
   // Run the job using the local/direct driver:
