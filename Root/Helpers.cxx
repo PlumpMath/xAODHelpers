@@ -19,3 +19,30 @@ int UCHelpers::Helpers::count_event_btags(const xAOD::JetContainer* jets, double
 
   return num_bTags;
 }
+
+std::pair< xAOD::JetContainer*, xAOD::JetAuxContainer* > UCHelpers::Helpers::match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets)
+{
+  xAOD::JetContainer* matchedJets = new xAOD::JetContainer();
+  xAOD::JetAuxContainer* matchedJetsAux = new xAOD::JetAuxContainer();
+  matchedJets->setStore(matchedJetsAux); // connect the two
+
+  TLorentzVector jet4Vector = largeR_jet->p4();
+  double jetSizeParameter = largeR_jet->getSizeParameter();
+
+  xAOD::JetContainer::const_iterator jet_itr = smallR_jets->begin();
+  xAOD::JetContainer::const_iterator jet_end = smallR_jets->end();
+
+
+  for( ; jet_itr != jet_end; ++jet_itr){
+    if(jet4Vector.DeltaR( (*jet_itr)->p4() ) <= jetSizeParameter){
+      // copy this jet to the output container
+      xAOD::Jet* smallR_jet = new xAOD::Jet();
+      smallR_jet->makePrivateStore( **jet_itr );
+      matchedJets->push_back( smallR_jet );
+    }
+  }
+
+  std::pair< xAOD::JetContainer*, xAOD::JetAuxContainer* > matchedJets_pair;
+  matchedJets_pair = std::make_pair(matchedJets, matchedJetsAux);
+  return matchedJets_pair;
+}
