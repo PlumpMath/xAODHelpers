@@ -26,7 +26,9 @@ EL::StatusCode JetHists::initialize(bool sumw2) {
   h_jet_numSubjets  = book("jet_numSubjets", m_containerName, "# subjets", 100, 0, 10, sumw2);
 
   h_mv1_discriminant = book("mv1_discriminant", m_containerName, "MV1 Discriminant", 200, 0, 1, sumw2);
-  h_num_bTags        = book("num_bTags", m_containerName, "Number of B-Tags in Event", 10, 0, 9, sumw2);
+  h_num_bTags        = book("num_bTags", m_containerName, "Number of B-Tags per Jet", 10, -0.5, 9.5, sumw2);
+  h_num_bTags_withTruth = book("num_bTags_withTruth", m_containerName, "Number of Truth Bs per Jet", 10, -0.5, 9.5, sumw2);
+
 
   return EL::StatusCode::SUCCESS;
 }
@@ -41,6 +43,12 @@ EL::StatusCode JetHists::execute() {
     return EL::StatusCode::FAILURE;
   }
 
+  jet_t antikt4_jets = 0;
+  if( !m_wk->xaodEvent()->retrieve( antikt4_jets, "AntiKt4LCTopoJets" ).isSuccess() ){ // retrieve small R jets
+    Error("execute()", "Failed to retreive small R jets. Exiting.");
+    return EL::StatusCode::FAILURE;
+  }
+
   // Info("execute()", "  number of %s = %lu", m_jetContainerName.c_str(), jets->size());
 
   xAOD::JetContainer::const_iterator jet_itr = jets->begin();
@@ -48,6 +56,9 @@ EL::StatusCode JetHists::execute() {
 
   JetSubStructureUtils::SubjetFinder subjetFinder;
   std::vector<fastjet::PseudoJet> subjets;
+
+  // for btagging
+  UCHelpers::Helpers helpers;
 
   long int numSubjets = 0;
   // loop over the jets
@@ -101,14 +112,20 @@ EL::StatusCode JetHists::execute() {
         }
       }
     }
-  }
 
-  UCHelpers::Helpers helpers;
-  int num_bTags = helpers.count_event_btags(jets, 0.8);
+    typedef std::pair< xAOD::JetContainer*, xAOD::JetAuxContainer* > pair_t;
+
+    pair_t matched_jets = helpers.match_largeR_jet_to_smallR_jets( (*jet_itr), antikt4_jets);
+    pair_t btagged_jets = helpers.select_container_btags(matched_jets.first, 0.8);
+    // int num_bTags = helpers.count_container_btags(matched_jets.first, 0.8);
+    int num_bTags = (btagged_jets.first)->size(); // 0.8 ~ 70% efficiency
+    int num_bTags_withTruth = helpers.count_truthLabel_byId(btagged_jets.first, 5); // #count btags
+    h_num_bTags->Fill( num_bTags );
+    h_num_bTags_withTruth->Fill ( num_bTags_withTruth );
+  }
 
   h_numJets->Fill( jets->size() );
   h_numSubjets->Fill( numSubjets );
-  h_num_bTags->Fill( num_bTags );
 
   return EL::StatusCode::SUCCESS;
 }
