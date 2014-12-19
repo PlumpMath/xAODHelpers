@@ -34,7 +34,7 @@ int xAODHelpers::Helpers::count_container_btags(const xAOD::JetContainer* jets, 
   return num_bTags;
 }
 
-const xAOD::JetContainer* xAODHelpers::Helpers::select_container_btags(const xAOD::JetContainer* jets, double bTagCut)
+const xAOD::JetContainer xAODHelpers::Helpers::select_container_btags(const xAOD::JetContainer* jets, double bTagCut)
 {
   /* Email to PATHelp: "Correctly using SG::VIEW_ELEMENTS?"
      xAOD::JetContainer==DataVector<xAOD::Jet> will not accept a const object.
@@ -54,7 +54,7 @@ const xAOD::JetContainer* xAODHelpers::Helpers::select_container_btags(const xAO
   for(auto jet : *jets){
     if(xAODHelpers::Helpers::check_bTag_cut(jet, bTagCut)) selectedJets.push_back( jet );
   }
-  return selectedJets.asDataVector();
+  return *selectedJets.asDataVector();
 }
 
 void xAODHelpers::Helpers::select_container_btags(const xAOD::JetContainer* jets, double bTagCut, std::string decoratorName)
@@ -74,7 +74,7 @@ int xAODHelpers::Helpers::count_truthLabel_byID(const xAOD::JetContainer* jets, 
   return num_truthLabel;
 }
 
-const xAOD::JetContainer* xAODHelpers::Helpers::match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets)
+const xAOD::JetContainer xAODHelpers::Helpers::match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets)
 {
   /* Email to PATHelp: "Correctly using SG::VIEW_ELEMENTS?"
      xAOD::JetContainer==DataVector<xAOD::Jet> will not accept a const object.
@@ -98,5 +98,5 @@ const xAOD::JetContainer* xAODHelpers::Helpers::match_largeR_jet_to_smallR_jets(
   for(auto smallR_jet : *smallR_jets){
     if(largeR_jet4Vector.DeltaR( smallR_jet->p4() ) <= jetSizeParameter ) matchedJets.push_back( smallR_jet );
   }
-  return matchedJets.asDataVector();
+  return *matchedJets.asDataVector();
 }

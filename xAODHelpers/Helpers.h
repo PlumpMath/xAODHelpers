@@ -24,11 +24,11 @@ namespace xAODHelpers {
     int count_truthLabel_byID (const xAOD::JetContainer* jets, int truthLabel_ID);
 
     // helper functions to quickly select
-    const xAOD::JetContainer* select_container_btags(const xAOD::JetContainer* jets, double bTagCut);
+    const xAOD::JetContainer select_container_btags(const xAOD::JetContainer* jets, double bTagCut);
     void select_container_btags(const xAOD::JetContainer* jets, double bTagCut, std::string decoratorName);
 
     // given a largeR jet and a container of smallR jets, return a std::pair of dR matching jets
-    const xAOD::JetContainer* match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets);
+    const xAOD::JetContainer match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets);
   private:
 
   };
