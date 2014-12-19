@@ -1,10 +1,10 @@
 # xAODHelpers - A RootCore Package
 
 ## Installing
-The last stable analysis base used is **2.0.18**. To install,
+The last stable analysis base used is **2.0.20**. To install,
 ```bash
 mkdir myRootCore && cd myRootCore
-rcSetup Base,2.0.18
+rcSetup Base,2.0.20
 git clone https://github.com/kratsg/xAODHelpers.git
 # git clone https://github.com/mileswu/JetSubstructureTools
 git clone https://github.com/kratsg/JetSubStructureUtils
@@ -19,6 +19,10 @@ rc compile_pkg xAODHelpers
 ### Functionality Included
  - `HistogramManager` helps manage histograms in `EventLoop` algorithms by initializing histograms and adding it to the worker.
  - `JetKinematics` is an `EventLoop` algorithm used to automate the creation of histograms for a given jet container. See [makeJetKinematics.cxx](util/makeJetKinematics.cxx) for an example.
+
+### Tested Against AnalysisBase versions:
+ - 2.0.18
+ - 2.0.20
 
 #### Authors
 - [Giordon Stark](https://github.com/kratsg)
