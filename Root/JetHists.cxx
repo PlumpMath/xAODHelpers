@@ -113,13 +113,11 @@ EL::StatusCode JetHists::execute() {
       }
     }
 
-    typedef std::pair< xAOD::JetContainer*, xAOD::JetAuxContainer* > pair_t;
-
-    pair_t matched_jets = helpers.match_largeR_jet_to_smallR_jets( (*jet_itr), antikt4_jets);
-    pair_t btagged_jets = helpers.select_container_btags(matched_jets.first, 0.8);
+    xAOD::JetContainer* matched_jets = helpers.match_largeR_jet_to_smallR_jets( (*jet_itr), antikt4_jets);
+    xAOD::JetContainer* btagged_jets = helpers.select_container_btags(matched_jets, 0.8);
     // int num_bTags = helpers.count_container_btags(matched_jets.first, 0.8);
-    int num_bTags = (btagged_jets.first)->size(); // 0.8 ~ 70% efficiency
-    int num_bTags_withTruth = helpers.count_truthLabel_byId(btagged_jets.first, 5); // #count btags
+    int num_bTags = btagged_jets->size(); // 0.8 ~ 70% efficiency
+    int num_bTags_withTruth = helpers.count_truthLabel_byID(btagged_jets, 5); // #count btags
     h_num_bTags->Fill( num_bTags );
     h_num_bTags_withTruth->Fill ( num_bTags_withTruth );
   }

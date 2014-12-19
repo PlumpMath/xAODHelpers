@@ -4,66 +4,65 @@ UCHelpers :: Helpers :: Helpers ()
 {
 }
 
+bool UCHelpers::Helpers::check_bTag_cut(const xAOD::Jet* jet, double bTagCut)
+{
+  const xAOD::BTagging* btag = jet->btagging();
+  if(bool(btag)){
+    double mv1 = btag->MV1_discriminant();
+    return mv1 >= bTagCut;
+  }
+  return false;
+}
+
+bool UCHelpers::Helpers::check_truthLabel_ID(const xAOD::Jet* jet, int truthLabel_ID)
+{
+  if( jet->isAvailable<int>("TruthLabelID") ){
+    return jet->getAttribute<int>("TruthLabelID") == truthLabel_ID;
+  }
+  return false;
+}
+
 int UCHelpers::Helpers::count_container_btags(const xAOD::JetContainer* jets, double bTagCut)
 {
   int num_bTags = 0;
-  xAOD::JetContainer::const_iterator jet_itr = jets->begin();
-  xAOD::JetContainer::const_iterator jet_end = jets->end();
-  for( ; jet_itr != jet_end; ++jet_itr ){
-    const xAOD::BTagging* btag = (*jet_itr)->btagging();
-    if(bool(btag)){
-      double mv1 = btag->MV1_discriminant();
-      if(mv1 >= bTagCut) num_bTags++;
-    }
+
+  for(auto jet : *jets){
+    if(UCHelpers::Helpers::check_bTag_cut(jet, bTagCut)) num_bTags++;
   }
 
   return num_bTags;
 }
 
-std::pair< xAOD::JetContainer*, xAOD::JetAuxContainer* > UCHelpers::Helpers::select_container_btags( const xAOD::JetContainer* jets, double bTagCut)
+xAOD::JetContainer* UCHelpers::Helpers::select_container_btags(xAOD::JetContainer* jets, double bTagCut)
 {
-  xAOD::JetContainer* copyJets = new xAOD::JetContainer();
-  xAOD::JetAuxContainer* copyJetsAux = new xAOD::JetAuxContainer();
-  copyJets->setStore(copyJetsAux); // connect the two
-  xAOD::JetContainer::const_iterator jet_itr = jets->begin();
-  xAOD::JetContainer::const_iterator jet_end = jets->end();
-  for( ; jet_itr != jet_end; ++jet_itr ){
-    const xAOD::BTagging* btag = (*jet_itr)->btagging();
-    if(bool(btag)){
-      double mv1 = btag->MV1_discriminant();
-      if(mv1 >= bTagCut){
-        xAOD::Jet* copied_jet = new xAOD::Jet();
-        copied_jet->makePrivateStore( **jet_itr );
-        copyJets->push_back( copied_jet );
-      }
-    }
+  xAOD::JetContainer* selectedJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
+
+  for(auto jet : *jets){
+    if(UCHelpers::Helpers::check_bTag_cut(jet, bTagCut)) selectedJets->push_back( jet );
   }
-  std::pair< xAOD::JetContainer*, xAOD::JetAuxContainer* > copyJets_pair;
-  copyJets_pair = std::make_pair(copyJets, copyJetsAux);
-  return copyJets_pair;
+  return selectedJets;
 }
 
-int UCHelpers::Helpers::count_truthLabel_byId(const xAOD::JetContainer* jets, int user_truthLabelID)
+void UCHelpers::Helpers::select_container_btags(xAOD::JetContainer* jets, double bTagCut, std::string decoratorName)
+{
+  for(auto jet: *jets){
+    if(UCHelpers::Helpers::check_bTag_cut(jet, bTagCut) ) jet->auxdecor<int>(decoratorName) = 1;
+  }
+
+}
+
+int UCHelpers::Helpers::count_truthLabel_byID(const xAOD::JetContainer* jets, int truthLabel_ID)
 {
   int num_truthLabel = 0;
-  xAOD::JetContainer::const_iterator jet_itr = jets->begin();
-  xAOD::JetContainer::const_iterator jet_end = jets->end();
-  for( ; jet_itr != jet_end; ++jet_itr ){
-    if( (*jet_itr)->isAvailable<int>("TruthLabelID") ){
-      const int data_truthLabelID = (*jet_itr)->getAttribute<int>("TruthLabelID");
-      if(data_truthLabelID == user_truthLabelID){
-        num_truthLabel++;
-      }
-    }
+  for(auto jet: *jets){
+    if(UCHelpers::Helpers::check_truthLabel_ID(jet, truthLabel_ID)) num_truthLabel++;
   }
   return num_truthLabel;
 }
 
-std::pair< xAOD::JetContainer*, xAOD::JetAuxContainer* > UCHelpers::Helpers::match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets)
+xAOD::JetContainer* UCHelpers::Helpers::match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets)
 {
-  xAOD::JetContainer* matchedJets = new xAOD::JetContainer();
-  xAOD::JetAuxContainer* matchedJetsAux = new xAOD::JetAuxContainer();
-  matchedJets->setStore(matchedJetsAux); // connect the two
+  xAOD::JetContainer* matchedJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
 
   TLorentzVector jet4Vector = largeR_jet->p4();
   double jetSizeParameter = largeR_jet->getSizeParameter();
@@ -81,7 +80,5 @@ std::pair< xAOD::JetContainer*, xAOD::JetAuxContainer* > UCHelpers::Helpers::mat
     }
   }
 
-  std::pair< xAOD::JetContainer*, xAOD::JetAuxContainer* > matchedJets_pair;
-  matchedJets_pair = std::make_pair(matchedJets, matchedJetsAux);
-  return matchedJets_pair;
+  return matchedJets;
 }
