@@ -113,8 +113,8 @@ EL::StatusCode JetHists::execute() {
       }
     }
 
-    xAOD::JetContainer* matched_jets = helpers.match_largeR_jet_to_smallR_jets( (*jet_itr), antikt4_jets);
-    xAOD::JetContainer* btagged_jets = helpers.select_container_btags(matched_jets, 0.8);
+    const xAOD::JetContainer* matched_jets = helpers.match_largeR_jet_to_smallR_jets( (*jet_itr), antikt4_jets);
+    const xAOD::JetContainer* btagged_jets = helpers.select_container_btags(matched_jets, 0.8);
     // int num_bTags = helpers.count_container_btags(matched_jets.first, 0.8);
     int num_bTags = btagged_jets->size(); // 0.8 ~ 70% efficiency
     int num_bTags_withTruth = helpers.count_truthLabel_byID(btagged_jets, 5); // #count btags
