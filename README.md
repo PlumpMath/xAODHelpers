@@ -21,8 +21,8 @@ rc compile_pkg xAODHelpers
  - `JetKinematics` is an `EventLoop` algorithm used to automate the creation of histograms for a given jet container. See [makeJetKinematics.cxx](util/makeJetKinematics.cxx) for an example.
 
 ### Tested Against AnalysisBase versions:
- - 2.0.18
  - 2.0.20
+ - 2.0.18
 
 #### Authors
 - [Giordon Stark](https://github.com/kratsg)
