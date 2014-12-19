@@ -1,7 +1,7 @@
-#ifndef UCHelpers_JetHists_H
-#define UCHelpers_JetHists_H
+#ifndef xAODHelpers_JetHists_H
+#define xAODHelpers_JetHists_H
 
-#include <UCHelpers/HistogramManager.h>
+#include <xAODHelpers/HistogramManager.h>
 #include "xAODJet/JetContainer.h"
 
 

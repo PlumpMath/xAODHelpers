@@ -1,7 +1,7 @@
-#include <UCHelpers/JetHists.h>
+#include <xAODHelpers/JetHists.h>
 
 // btagging
-#include "UCHelpers/Helpers.h"
+#include "xAODHelpers/Helpers.h"
 // subjet finding
 #include "JetSubStructureUtils/SubjetFinder.h"
 
@@ -58,7 +58,7 @@ EL::StatusCode JetHists::execute() {
   std::vector<fastjet::PseudoJet> subjets;
 
   // for btagging
-  UCHelpers::Helpers helpers;
+  xAODHelpers::Helpers helpers;
 
   long int numSubjets = 0;
   // loop over the jets

@@ -6,7 +6,7 @@
 #include "SampleHandler/DiskListLocal.h"
 #include <TSystem.h>
 
-#include "UCHelpers/JetKinematics.h"
+#include "xAODHelpers/JetKinematics.h"
 
 int main( int argc, char* argv[] ) {
 

@@ -1,5 +1,5 @@
-#ifndef UCHelpers_ElectronKinematics_H
-#define UCHelpers_ElectronKinematics_H
+#ifndef xAODHelpers_ElectronKinematics_H
+#define xAODHelpers_ElectronKinematics_H
 
 #include <EventLoop/Algorithm.h>
 

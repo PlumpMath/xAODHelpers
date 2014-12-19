@@ -1,5 +1,5 @@
-#ifndef UCHelpers_JetKinematics_H
-#define UCHelpers_JetKinematics_H
+#ifndef xAODHelpers_JetKinematics_H
+#define xAODHelpers_JetKinematics_H
 
 #include <EventLoop/Algorithm.h>
 

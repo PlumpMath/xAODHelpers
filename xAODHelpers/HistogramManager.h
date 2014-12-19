@@ -1,5 +1,5 @@
-#ifndef UCHelpers_HistogramManager_H
-#define UCHelpers_HistogramManager_H
+#ifndef xAODHelpers_HistogramManager_H
+#define xAODHelpers_HistogramManager_H
 
 #include <TH1.h>
 #include <TH1F.h>

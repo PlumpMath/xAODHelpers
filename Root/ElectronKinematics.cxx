@@ -2,8 +2,8 @@
 #include <EventLoop/Worker.h>
 #include <EventLoop/Job.h>
 
-#include <UCHelpers/ElectronKinematics.h>
-#include <UCHelpers/ElectronHists.h>
+#include <xAODHelpers/ElectronKinematics.h>
+#include <xAODHelpers/ElectronHists.h>
 
 // count events
 #include "xAODEventInfo/EventInfo.h"

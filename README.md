@@ -1,15 +1,15 @@
-# UCHelpers - A RootCore Package
+# xAODHelpers - A RootCore Package
 
 ## Installing
 The last stable analysis base used is **2.0.18**. To install,
 ```bash
 mkdir myRootCore && cd myRootCore
 rcSetup Base,2.0.18
-git clone https://github.com/kratsg/UCHelpers.git
+git clone https://github.com/kratsg/xAODHelpers.git
 # git clone https://github.com/mileswu/JetSubstructureTools
 git clone https://github.com/kratsg/JetSubStructureUtils
 rc find_packages
-rc compile_pkg UCHelpers
+rc compile_pkg xAODHelpers
 ```
 
 ## Dependencies

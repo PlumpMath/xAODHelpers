@@ -1,10 +1,10 @@
-#include "UCHelpers/Helpers.h"
+#include "xAODHelpers/Helpers.h"
 
-UCHelpers :: Helpers :: Helpers ()
+xAODHelpers :: Helpers :: Helpers ()
 {
 }
 
-bool UCHelpers::Helpers::check_bTag_cut(const xAOD::Jet* jet, double bTagCut)
+bool xAODHelpers::Helpers::check_bTag_cut(const xAOD::Jet* jet, double bTagCut)
 {
   const xAOD::BTagging* btag = jet->btagging();
   if(bool(btag)){
@@ -14,7 +14,7 @@ bool UCHelpers::Helpers::check_bTag_cut(const xAOD::Jet* jet, double bTagCut)
   return false;
 }
 
-bool UCHelpers::Helpers::check_truthLabel_ID(const xAOD::Jet* jet, int truthLabel_ID)
+bool xAODHelpers::Helpers::check_truthLabel_ID(const xAOD::Jet* jet, int truthLabel_ID)
 {
   if( jet->isAvailable<int>("TruthLabelID") ){
     return jet->getAttribute<int>("TruthLabelID") == truthLabel_ID;
@@ -22,45 +22,45 @@ bool UCHelpers::Helpers::check_truthLabel_ID(const xAOD::Jet* jet, int truthLabe
   return false;
 }
 
-int UCHelpers::Helpers::count_container_btags(const xAOD::JetContainer* jets, double bTagCut)
+int xAODHelpers::Helpers::count_container_btags(const xAOD::JetContainer* jets, double bTagCut)
 {
   int num_bTags = 0;
 
   for(auto jet : *jets){
-    if(UCHelpers::Helpers::check_bTag_cut(jet, bTagCut)) num_bTags++;
+    if(xAODHelpers::Helpers::check_bTag_cut(jet, bTagCut)) num_bTags++;
   }
 
   return num_bTags;
 }
 
-xAOD::JetContainer* UCHelpers::Helpers::select_container_btags(xAOD::JetContainer* jets, double bTagCut)
+xAOD::JetContainer* xAODHelpers::Helpers::select_container_btags(xAOD::JetContainer* jets, double bTagCut)
 {
   xAOD::JetContainer* selectedJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
 
   for(auto jet : *jets){
-    if(UCHelpers::Helpers::check_bTag_cut(jet, bTagCut)) selectedJets->push_back( jet );
+    if(xAODHelpers::Helpers::check_bTag_cut(jet, bTagCut)) selectedJets->push_back( jet );
   }
   return selectedJets;
 }
 
-void UCHelpers::Helpers::select_container_btags(xAOD::JetContainer* jets, double bTagCut, std::string decoratorName)
+void xAODHelpers::Helpers::select_container_btags(xAOD::JetContainer* jets, double bTagCut, std::string decoratorName)
 {
   for(auto jet: *jets){
-    if(UCHelpers::Helpers::check_bTag_cut(jet, bTagCut) ) jet->auxdecor<int>(decoratorName) = 1;
+    if(xAODHelpers::Helpers::check_bTag_cut(jet, bTagCut) ) jet->auxdecor<int>(decoratorName) = 1;
   }
 
 }
 
-int UCHelpers::Helpers::count_truthLabel_byID(const xAOD::JetContainer* jets, int truthLabel_ID)
+int xAODHelpers::Helpers::count_truthLabel_byID(const xAOD::JetContainer* jets, int truthLabel_ID)
 {
   int num_truthLabel = 0;
   for(auto jet: *jets){
-    if(UCHelpers::Helpers::check_truthLabel_ID(jet, truthLabel_ID)) num_truthLabel++;
+    if(xAODHelpers::Helpers::check_truthLabel_ID(jet, truthLabel_ID)) num_truthLabel++;
   }
   return num_truthLabel;
 }
 
-xAOD::JetContainer* UCHelpers::Helpers::match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets)
+xAOD::JetContainer* xAODHelpers::Helpers::match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets)
 {
   xAOD::JetContainer* matchedJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
 

@@ -1,7 +1,7 @@
-#ifndef UCHelpers_ElectronHists_H
-#define UCHelpers_ElectronHists_H
+#ifndef xAODHelpers_ElectronHists_H
+#define xAODHelpers_ElectronHists_H
 
-#include <UCHelpers/HistogramManager.h>
+#include <xAODHelpers/HistogramManager.h>
 #include "xAODEgamma/ElectronContainer.h"
 
 class ElectronHists : public HistogramManager {

@@ -1,5 +1,5 @@
-#include <UCHelpers/JetKinematics.h>
-#include <UCHelpers/ElectronKinematics.h>
+#include <xAODHelpers/JetKinematics.h>
+#include <xAODHelpers/ElectronKinematics.h>
 
 #ifdef __CINT__
 

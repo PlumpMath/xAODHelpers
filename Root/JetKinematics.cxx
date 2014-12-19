@@ -2,8 +2,8 @@
 #include <EventLoop/Worker.h>
 #include <EventLoop/Job.h>
 
-#include <UCHelpers/JetKinematics.h>
-#include <UCHelpers/JetHists.h>
+#include <xAODHelpers/JetKinematics.h>
+#include <xAODHelpers/JetHists.h>
 
 // count events
 #include "xAODEventInfo/EventInfo.h"

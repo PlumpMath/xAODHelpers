@@ -1,5 +1,5 @@
-#ifndef UCHelpers_Helpers_H
-#define UCHelpers_Helpers_H
+#ifndef xAODHelpers_Helpers_H
+#define xAODHelpers_Helpers_H
 
 // include AntiKt4Truth Jets for btagging
 #include "xAODJet/JetContainer.h"
@@ -8,7 +8,7 @@
 // deal with btagging
 #include "xAODBTagging/BTagging.h"
 
-namespace UCHelpers {
+namespace xAODHelpers {
 
   class Helpers {
 
