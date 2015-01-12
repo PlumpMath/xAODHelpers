@@ -18,9 +18,11 @@ rc compile_pkg xAODHelpers
 
 ### Functionality Included
  - `HistogramManager` helps manage histograms in `EventLoop` algorithms by initializing histograms and adding it to the worker.
+ - `JetHists` is a plotting class for Jets to predefine a lot of plots to make for an input JetContainer (see `execute()`). This should only be changed to add new plots, but not to add in plots that require cuts on a jet -- that should be done in an EL algorithm such as `JetKinematics`.
  - `JetKinematics` is an `EventLoop` algorithm used to automate the creation of histograms for a given jet container. See [makeJetKinematics.cxx](util/makeJetKinematics.cxx) for an example.
 
 ### Tested Against AnalysisBase versions:
+ - 2.0.22
  - 2.0.20
  - 2.0.18
 
