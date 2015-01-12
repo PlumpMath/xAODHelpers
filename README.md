@@ -1,10 +1,10 @@
 # xAODHelpers - A RootCore Package
 
 ## Installing
-The last stable analysis base used is **2.0.20**. To install,
+The last stable analysis base used is **2.0.22**. To install,
 ```bash
 mkdir myRootCore && cd myRootCore
-rcSetup Base,2.0.20
+rcSetup Base,2.0.22
 git clone https://github.com/kratsg/xAODHelpers.git
 # git clone https://github.com/mileswu/JetSubstructureTools
 git clone https://github.com/kratsg/JetSubStructureUtils
