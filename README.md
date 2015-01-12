@@ -6,8 +6,7 @@ The last stable analysis base used is **2.0.22**. To install,
 mkdir myRootCore && cd myRootCore
 rcSetup Base,2.0.22
 git clone https://github.com/kratsg/xAODHelpers.git
-# git clone https://github.com/mileswu/JetSubstructureTools
-git clone https://github.com/kratsg/JetSubStructureUtils
+rc checkout_pkg atlasoff/Reconstruction/Jet/JetSubStructureUtils
 rc find_packages
 rc compile_pkg xAODHelpers
 ```
