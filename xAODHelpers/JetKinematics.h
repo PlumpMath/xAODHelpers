@@ -5,6 +5,7 @@
 
 #include <xAODRootAccess/Init.h>
 #include <xAODRootAccess/TEvent.h>
+#include <xAODRootAccess/TStore.h>
 
 // for histograms
 #include <TH1.h>
@@ -13,21 +14,23 @@ class JetHists;
 
 class JetKinematics : public EL::Algorithm
 {
-public:
 
-  /* For counting and statistics */
-  xAOD::TEvent *m_event; //!
-  int m_eventCounter; //!
-  long long int m_numEvents; //!
-
+private:
   #ifndef __CINT__
     // for holding the set of histogram codes
-    JetHists* m_histManager; //!
+    JetHists* m_plots; //!
   #endif // not __CINT__
+
+public:
+  /* For counting and statistics */
+  xAOD::TEvent *m_event; //!
+  xAOD::TStore *m_store; //!
+  int m_eventCounter; //!
 
   /* For retrieving the correct jet object */
   std::string m_jetContainerName;
   std::string m_jetDisplayName;
+  int m_jetDetailLevel;
 
   // this is a standard constructor
   JetKinematics ();

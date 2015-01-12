@@ -1,19 +1,20 @@
 #include "xAODHelpers/HistogramManager.h"
 
-HistogramManager::HistogramManager() {}
-HistogramManager::~HistogramManager() {}
-
-void HistogramManager::assign(EL::Worker* wk) {
-  m_wk = wk;
+/* constructors and destructors */
+HistogramManager::HistogramManager(std::string name, int detailLevel):
+  m_name(name),
+  m_detailLevel(detailLevel)
+{
 }
 
+HistogramManager::~HistogramManager() {}
 
 /* Main book() functions for 1D, 2D, 3D histograms */
 TH1F* HistogramManager::book(std::string name, std::string title,
                              std::string xlabel, int xbins, double xlow, double xhigh,
                              bool sumw2)
 {
-  TH1F* tmp = new TH1F( GetName(name).c_str(), title.c_str(), xbins, xlow, xhigh);
+  TH1F* tmp = new TH1F( concat(name, title).c_str(), title.c_str(), xbins, xlow, xhigh);
   SetLabel(tmp, xlabel);
   if(sumw2) this->Sumw2(tmp);
   this->record(tmp);
@@ -25,7 +26,7 @@ TH2F* HistogramManager::book(std::string name, std::string title,
                              std::string ylabel, int ybins, double ylow, double yhigh,
                              bool sumw2)
 {
-  TH2F* tmp = new TH2F( GetName(name).c_str(), title.c_str(), xbins, xlow, xhigh, ybins, ylow, yhigh);
+  TH2F* tmp = new TH2F( concat(name, title).c_str(), title.c_str(), xbins, xlow, xhigh, ybins, ylow, yhigh);
   SetLabel(tmp, xlabel, ylabel);
   if(sumw2) this->Sumw2(tmp);
   this->record(tmp);
@@ -38,7 +39,7 @@ TH3F* HistogramManager::book(std::string name, std::string title,
                              std::string zlabel, int zbins, double zlow, double zhigh,
                              bool sumw2)
 {
-  TH3F* tmp = new TH3F( GetName(name).c_str(), title.c_str(), xbins, xlow, xhigh, ybins, ylow, yhigh, zbins, zlow, zhigh);
+  TH3F* tmp = new TH3F( concat(name, title).c_str(), title.c_str(), xbins, xlow, xhigh, ybins, ylow, yhigh, zbins, zlow, zhigh);
   SetLabel(tmp, xlabel, ylabel, zlabel);
   if(sumw2) this->Sumw2(tmp);
   this->record(tmp);
@@ -51,7 +52,13 @@ void HistogramManager::Sumw2(TH1* hist) {
 };
 
 void HistogramManager::record(TH1* hist) {
-  m_wk->addOutput(hist);
+  m_allHists.push_back( hist );
+};
+
+void HistogramManager::record(EL::Worker* wk) {
+  for( auto hist : m_allHists ){
+    wk->addOutput(hist);
+  }
 };
 
 void HistogramManager::SetLabel(TH1* hist, std::string xlabel)
@@ -71,7 +78,7 @@ void HistogramManager::SetLabel(TH1* hist, std::string xlabel, std::string ylabe
   this->SetLabel(hist, xlabel, ylabel);
 };
 
-std::string HistogramManager::GetName(std::string name)
+std::string HistogramManager::concat(std::string left, std::string right)
 {
-  return m_namePrefix+m_delimiter+name+m_delimiter+m_namePostfix;
+  return left+m_delimiter+right;
 };

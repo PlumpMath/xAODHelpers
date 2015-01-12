@@ -22,7 +22,7 @@ int main( int argc, char* argv[] ) {
 
   const char* inputFilePath = "/share/t3data/kratsg/xAODs";
   SH::DiskListLocal list (inputFilePath);
-  SH::scanDir (sh, list, "AOD.01604209._000001.pool.root.1"); // specifying one particular file for testing
+  SH::scanDir (sh, list, "*.root*", "*110351*"); // specifying one particular sample
 
   // Set the name of the input TTree. It's always "CollectionTree"
   // for xAOD files.
@@ -40,25 +40,30 @@ int main( int argc, char* argv[] ) {
   /* This is the default container used */
   jk_AntiKt10LC->m_jetContainerName = "AntiKt10LCTopoJets";
   jk_AntiKt10LC->m_jetDisplayName = "AntiKt10";
+  jk_AntiKt10LC->m_jetDetailLevel = 1;
 
   JetKinematics* jk_AntiKt4LC = new JetKinematics();
   /* This is the default container used */
   jk_AntiKt4LC->m_jetContainerName = "AntiKt4LCTopoJets";
   jk_AntiKt4LC->m_jetDisplayName = "AntiKt4";
+  jk_AntiKt4LC->m_jetDetailLevel = 1;
 
   JetKinematics* jk_AntiKt4Truth = new JetKinematics();
   jk_AntiKt4Truth->m_jetContainerName = "AntiKt4TruthJets";
   jk_AntiKt4Truth->m_jetDisplayName = "Truth4";
+  jk_AntiKt4Truth->m_jetDetailLevel = 1;
 
   // this is an xAOD::JetTrigContainer
-  // JetKinematics* jk_HLT = new JetKinematics();
-  // jk_HLT->m_jetContainerName = "HLT_xAOD__JetContainer_TrigHLTJetRec";
-  // jk_HLT->m_jetDisplayName = "HLT";
+  JetKinematics* jk_HLT = new JetKinematics();
+  jk_HLT->m_jetContainerName = "HLT_xAOD__JetContainer_TrigHLTJetRec";
+  jk_HLT->m_jetDisplayName = "HLT";
+  jk_HLT->m_jetDetailLevel = 0;
 
   // Attach algorithms
   job.algsAdd( jk_AntiKt10LC );
   job.algsAdd( jk_AntiKt4LC );
   job.algsAdd( jk_AntiKt4Truth );
+  job.algsAdd( jk_HLT );
 
 
   // Run the job using the local/direct driver:

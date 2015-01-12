@@ -5,52 +5,40 @@
 // subjet finding
 #include "JetSubStructureUtils/SubjetFinder.h"
 
-JetHists::JetHists() {}
+JetHists::JetHists(std::string name, int detailLevel):
+  HistogramManager(name, detailLevel)
+{
+}
+
 JetHists::~JetHists() {}
 
-EL::StatusCode JetHists::initialize(bool sumw2) {
-  h_jetPt           = book("jetPt", m_containerName, "{p}_{t} [GeV]", 100, 0, 500, sumw2);
-  h_jetM            = book("jetM" , m_containerName, "{m} [GeV]", 100, 0, 500, sumw2);
-  h_jetEta          = book("jetEta", m_containerName, "\\eta", 100, -4.9, 4.9, sumw2);
-  h_jetPhi          = book("jetPhi", m_containerName, "\\phi", 100, -3.2, 3.2, sumw2);
+EL::StatusCode JetHists::initialize() {
+  h_jetPt           = book(m_name, "jetPt", "{p}_{t} [GeV]", 100, 0, 500, true);
+  h_jetM            = book(m_name, "jetM", "{m} [GeV]", 100, 0, 500, true);
+  h_jetEta          = book(m_name, "jetEta", "\\eta", 100, -4.9, 4.9, true);
+  h_jetPhi          = book(m_name, "jetPhi", "\\phi", 100, -3.2, 3.2, true);
 
-  h_numJets         = book("numJets", m_containerName, "# jets", 100, 0, 20, sumw2);
-  h_numSubjets      = book("numSubjets", m_containerName, "# subjets", 100, 0, 200, sumw2);
+  h_numJets         = book(m_name, "event_numJets", "# jets", 100, 0, 20, true);
+  h_numSubjets      = book(m_name, "event_numSubjets", "# subjets", 100, 0, 200, true);
 
-  h_jetTau1         = book("jetTau1", m_containerName, "{\\tau}_{1}", 100, 0, 1, sumw2);
-  h_jetTau2         = book("jetTau2", m_containerName, "{\\tau}_{2}", 100, 0, 1, sumw2);
-  h_jetTau3         = book("jetTau3", m_containerName, "{\\tau}_{3}", 100, 0, 1, sumw2);
-  h_jetDip12        = book("jetDip12", m_containerName, "{dip}_{12}", 100, 0, 1, sumw2);
-  h_jetDip13        = book("jetDip13", m_containerName, "{dip}_{13}", 100, 0, 1, sumw2);
-  h_jetDip23        = book("jetDip23", m_containerName, "{dip}_{23}", 100, 0, 1, sumw2);
-  h_jet_numSubjets  = book("jet_numSubjets", m_containerName, "# subjets", 100, 0, 10, sumw2);
+  h_jetTau1         = book(m_name, "jetTau1", "{\\tau}_{1}", 100, 0, 1, true);
+  h_jetTau2         = book(m_name, "jetTau2", "{\\tau}_{2}", 100, 0, 1, true);
+  h_jetTau3         = book(m_name, "jetTau3", "{\\tau}_{3}", 100, 0, 1, true);
+  h_jetDip12        = book(m_name, "jetDip12", "{dip}_{12}", 100, 0, 1, true);
+  h_jetDip13        = book(m_name, "jetDip13", "{dip}_{13}", 100, 0, 1, true);
+  h_jetDip23        = book(m_name, "jetDip23", "{dip}_{23}", 100, 0, 1, true);
+  h_jet_numSubjets  = book(m_name, "jet_numSubjets", "# subjets", 100, 0, 10, true);
 
-  h_mv1_discriminant = book("mv1_discriminant", m_containerName, "MV1 Discriminant", 200, 0, 1, sumw2);
-  h_num_bTags        = book("num_bTags", m_containerName, "Number of B-Tags per Jet", 10, -0.5, 9.5, sumw2);
-  h_num_bTags_withTruth = book("num_bTags_withTruth", m_containerName, "Number of Truth Bs per Jet", 10, -0.5, 9.5, sumw2);
-
+  h_mv1_discriminant = book(m_name, "mv1_discriminant", "MV1 Discriminant", 200, 0, 1, true);
+  /*
+  h_num_bTags        = book("num_bTags", m_containerName, "Number of B-Tags per Jet", 10, -0.5, 9.5, true);
+  h_num_bTags_withTruth = book("num_bTags_withTruth", m_containerName, "Number of Truth Bs per Jet", 10, -0.5, 9.5, true);
+  */
 
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode JetHists::execute() {
-  // get jet container of interest
-  typedef const xAOD::JetContainer* jet_t;
-
-  jet_t jets = 0;
-  if ( !m_wk->xaodEvent()->retrieve( jets, m_containerName.c_str() ).isSuccess() ){ // retrieve arguments: container type, container key
-    Error("execute()", "Failed to retrieve %s. Exiting.", m_containerName.c_str() );
-    return EL::StatusCode::FAILURE;
-  }
-
-  jet_t antikt4_jets = 0;
-  if( !m_wk->xaodEvent()->retrieve( antikt4_jets, "AntiKt4LCTopoJets" ).isSuccess() ){ // retrieve small R jets
-    Error("execute()", "Failed to retreive small R jets. Exiting.");
-    return EL::StatusCode::FAILURE;
-  }
-
-  // Info("execute()", "  number of %s = %lu", m_jetContainerName.c_str(), jets->size());
-
+EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeight) {
   xAOD::JetContainer::const_iterator jet_itr = jets->begin();
   xAOD::JetContainer::const_iterator jet_end = jets->end();
 
@@ -64,32 +52,31 @@ EL::StatusCode JetHists::execute() {
   // loop over the jets
   for( ; jet_itr != jet_end; ++jet_itr ) {
     // basic kinematics
-    h_jetPt->Fill( (*jet_itr)->pt()*0.001 );
-    h_jetM->Fill( (*jet_itr)->m()*0.001 );
-    h_jetEta->Fill( (*jet_itr)->eta() );
-    h_jetPhi->Fill( (*jet_itr)->phi() );
+    h_jetPt->Fill( (*jet_itr)->pt()*0.001, eventWeight );
+    h_jetM->Fill( (*jet_itr)->m()*0.001, eventWeight );
+    h_jetEta->Fill( (*jet_itr)->eta(), eventWeight );
+    h_jetPhi->Fill( (*jet_itr)->phi(), eventWeight );
 
     // substructure
     if( (*jet_itr)->isAvailable<float>("Tau1") ){
-      h_jetTau1->Fill( (*jet_itr)->getAttribute<float>("Tau1") );
-      h_jetTau2->Fill( (*jet_itr)->getAttribute<float>("Tau2") );
-      h_jetTau3->Fill( (*jet_itr)->getAttribute<float>("Tau3") );
+      h_jetTau1->Fill( (*jet_itr)->getAttribute<float>("Tau1"), eventWeight );
+      h_jetTau2->Fill( (*jet_itr)->getAttribute<float>("Tau2"), eventWeight );
+      h_jetTau3->Fill( (*jet_itr)->getAttribute<float>("Tau3"), eventWeight );
     }
 
     if( (*jet_itr)->isAvailable<float>("Dip12") ){
-      h_jetDip12->Fill( (*jet_itr)->getAttribute<float>("Dip12")*0.000001 );
-      h_jetDip13->Fill( (*jet_itr)->getAttribute<float>("Dip13")*0.000001 );
-      h_jetDip23->Fill( (*jet_itr)->getAttribute<float>("Dip23")*0.000001 );
+      h_jetDip12->Fill( (*jet_itr)->getAttribute<float>("Dip12"), eventWeight );
+      h_jetDip13->Fill( (*jet_itr)->getAttribute<float>("Dip13"), eventWeight );
+      h_jetDip23->Fill( (*jet_itr)->getAttribute<float>("Dip23"), eventWeight );
     }
 
     /* Miles: R=0.3 kT >5 GeV subjets */
     subjets = subjetFinder.result(**jet_itr);
     numSubjets+= subjets.size();
 
-    h_jet_numSubjets->Fill( subjets.size() );
+    h_jet_numSubjets->Fill( subjets.size(), eventWeight );
 
-
-    if(!isTrigger()){
+    if(m_detailLevel >= 1){
       if( (*jet_itr)->isAvailable<int>("TruthLabelID") ){
         const int truthLabelID = (*jet_itr)->getAttribute<int>("TruthLabelID");
         // if it is a b-quark
@@ -98,14 +85,7 @@ EL::StatusCode JetHists::execute() {
           const xAOD::BTagging* btag = (*jet_itr)->btagging();
           if(bool(btag)){
             double mv1 = btag->MV1_discriminant();
-            /*
-              http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/JetMissingEtID/JetMissingEtTagTools/src/JetMiss        ingEtTagTool.cxx#0229
-              if (mv1 >  0.9827)  pid |= 1<< 12;      // MV1 @ 60% 
-              if (mv1 >  0.7892)  pid |= 1<< 13;      // MV1 @ 70% 
-              if (mv1 >  0.6073)  pid |= 1<< 14;      // MV1 @ 75% 
-              if (mv1 >  0.1340)  pid |= 1<< 15;      // MV1 @ 85% 
-            */
-            h_mv1_discriminant->Fill( mv1 );
+            h_mv1_discriminant->Fill( mv1, eventWeight );
           } else {
             Info("execute()", "Could not get the btagging informationa");
           }
@@ -113,6 +93,7 @@ EL::StatusCode JetHists::execute() {
       }
     }
 
+    /*
     const xAOD::JetContainer matched_jets = helpers.match_largeR_jet_to_smallR_jets( (*jet_itr), antikt4_jets);
     const xAOD::JetContainer btagged_jets = helpers.select_container_btags(&matched_jets, 0.8);
     // int num_bTags = helpers.count_container_btags(matched_jets.first, 0.8);
@@ -120,19 +101,11 @@ EL::StatusCode JetHists::execute() {
     int num_bTags_withTruth = helpers.count_truthLabel_byID(&btagged_jets, 5); // #count btags
     h_num_bTags->Fill( num_bTags );
     h_num_bTags_withTruth->Fill ( num_bTags_withTruth );
+    */
   }
 
-  h_numJets->Fill( jets->size() );
-  h_numSubjets->Fill( numSubjets );
+  h_numJets->Fill( jets->size(), eventWeight );
+  h_numSubjets->Fill( numSubjets, eventWeight );
 
   return EL::StatusCode::SUCCESS;
-}
-
-EL::StatusCode JetHists::finalize() {
-  return EL::StatusCode::SUCCESS;
-}
-
-bool JetHists::isTrigger(){
-  // http://stackoverflow.com/a/2340309
-  return (m_containerName.find(std::string("Trig")) != std::string::npos);
 }

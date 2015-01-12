@@ -11,22 +11,28 @@
 
 class HistogramManager {
 
+  protected:
+    // generically the main name assigned to all histograms
+    std::string m_name;
+    // a detail level, should change to a string soon
+    int m_detailLevel;
+    // a container holding all generated histograms
+    //  - loop over this to record to EL output
+    std::vector< TH1* > m_allHists; //!
+
   public:
     // initializer and destructor
-    HistogramManager();
+    HistogramManager(std::string name, int detailLevel);
     virtual ~HistogramManager();
 
     // this is used by any class extending to pre-define a set of histograms
     //      to book by default
     //  the following should be defined in other classes
-    virtual EL::StatusCode initialize(bool sumw2 = true){ return EL::StatusCode::SUCCESS; };
+    virtual EL::StatusCode initialize(){ return EL::StatusCode::SUCCESS; };
     virtual EL::StatusCode execute(){ return EL::StatusCode::SUCCESS; };
     virtual EL::StatusCode finalize(){ return EL::StatusCode::SUCCESS; };
 
-    // @assign assigns the worker that manages the algorithms, usually just pass in wk()
-    void assign(EL::Worker* wk);
-
-    // @book - record a histogram in wk()->addOutput() and call various functions
+    // @book - record a histogram and call various functions
     //      ** This is an overloaded function. It will build the right histogram
     //          given the correct number of input arguments.**
     //  @book.name - name of histogram, access it in ROOT file like "h_jetPt->Draw()"
@@ -57,26 +63,28 @@ class HistogramManager {
                std::string zlabel, int zbins, double zlow, double zhigh,
                bool sumw2 = true);
 
-    // @namePrefix is what is prefixed to each histogram name
-    // @namePostfix is what is postfixed to each histogram name
-    // @delimiter is what to separate the prefix and postfix by when (pre|ap)pending
-    std::string m_namePrefix = "h", m_namePostfix, m_delimiter = "_"; //!
-    std::string m_containerName = ""; //!
-    EL::Worker* m_wk; //!
+    // @delimiter is what to separate the m_name and name when concatenating
+    std::string m_delimiter = "_"; //!
+
+    // Record all histograms from m_allHists to the worker
+    void record(EL::Worker* wk);
 
   private:
     // Turn on Sumw2 for the histogram
     void Sumw2(TH1* hist);
-    // Record the histogram on the worker
+
+    // Push the new histogram to m_allHists
     void record(TH1* hist);
+
     // Set the xlabel
     void SetLabel(TH1* hist, std::string xlabel);
     // Set the xlabel, ylabel
     void SetLabel(TH1* hist, std::string xlabel, std::string ylabel);
     // Set the xlabel, ylabel, and zlabel
     void SetLabel(TH1* hist, std::string xlabel, std::string ylabel, std::string zlabel);
-    // Creates the histogram name using @namePrefix, @namePostfix, and @delimiter above
-    std::string GetName(std::string name);
+
+    // string concatenation helper
+    std::string concat(std::string left, std::string right);
 
 };
 
