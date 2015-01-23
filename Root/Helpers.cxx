@@ -105,6 +105,20 @@ const xAOD::JetContainer xAODHelpers::Helpers::match_largeR_jet_to_smallR_jets(c
   return *matchedJets.asDataVector();
 }
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
+|                                               |
+|   Author  : Giordon Stark                     |
+|   Email   : gstark@cern.ch                    |
+|   Thanks to Ben Nachman for inspiration       |
+|                                               |
+|   jet_reclustering():                         |
+|       @jets   : jet container to recluster    |
+|                   and trim                    |
+|       @radius : radius of large-R jet         |
+|       @fcut   : trimming cut to apply         |
+|                                               |
+|                                               |
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 std::vector<TLorentzVector> xAODHelpers::Helpers::jet_reclustering(
   const xAOD::JetContainer* jets,
   double radius,
