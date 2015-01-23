@@ -165,7 +165,7 @@ std::vector<TLorentzVector> xAODHelpers::Helpers::jet_reclustering(
   {
       inline bool operator() (const TLorentzVector lhs, const TLorentzVector rhs)
       {
-        return (lhs.Pt() < rhs.Pt());
+        return (lhs.Pt() > rhs.Pt());
       }
   };
   std::sort(rc_t_jets.begin(), rc_t_jets.end(), sort_by_pt());
