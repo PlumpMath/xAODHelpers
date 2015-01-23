@@ -1,12 +1,18 @@
 #ifndef xAODHelpers_Helpers_H
 #define xAODHelpers_Helpers_H
 
+// we make use of this a lot
+#include <TLorentzVector.h>
+
 // include AntiKt4Truth Jets for btagging
 #include "xAODJet/JetContainer.h"
 // aux container for deep copies
 #include "xAODJet/JetAuxContainer.h"
 // deal with btagging
 #include "xAODBTagging/BTagging.h"
+
+// jet reclustering
+#include <fastjet/JetDefinition.hh>
 
 namespace xAODHelpers {
 
@@ -29,6 +35,9 @@ namespace xAODHelpers {
 
     // given a largeR jet and a container of smallR jets, return a std::pair of dR matching jets
     const xAOD::JetContainer match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets);
+
+    // pass in the jets you wish to recluster
+    std::vector<TLorentzVector> jet_reclustering(const xAOD::JetContainer* jets, double radius = 1.0, double fcut = 0.05, fastjet::JetAlgorithm rc_alg = fastjet::antikt_algorithm);
   private:
 
   };

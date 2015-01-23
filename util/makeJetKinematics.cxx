@@ -22,7 +22,10 @@ int main( int argc, char* argv[] ) {
 
   const char* inputFilePath = "/share/t3data/kratsg/xAODs";
   SH::DiskListLocal list (inputFilePath);
+  /* 2.0.23
   SH::scanDir (sh, list, "*.root*", "*110351*"); // specifying one particular sample
+  */
+  SH::scanDir (sh, list, "AOD.01604209._000001.pool.root.1");
 
   // Set the name of the input TTree. It's always "CollectionTree"
   // for xAOD files.

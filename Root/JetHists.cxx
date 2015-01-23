@@ -18,6 +18,10 @@ EL::StatusCode JetHists::initialize() {
   h_jetEta          = book(m_name, "jetEta", "\\eta", 100, -4.9, 4.9, true);
   h_jetPhi          = book(m_name, "jetPhi", "\\phi", 100, -3.2, 3.2, true);
 
+  h_rc_jetPt        = book(m_name, "rc_jetPt", "p_t [GeV]", 100, 0, 500, true);
+  h_rc_jetM         = book(m_name, "rc_jetM", "m [GeV]", 100, 0, 500, true);
+  h_numrcJets       = book(m_name, "event_numrcJets", "# rc jets", 100, 0, 20, true);
+
   h_numJets         = book(m_name, "event_numJets", "# jets", 100, 0, 20, true);
   h_numSubjets      = book(m_name, "event_numSubjets", "# subjets", 100, 0, 200, true);
 
@@ -102,9 +106,24 @@ EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeig
     h_num_bTags->Fill( num_bTags );
     h_num_bTags_withTruth->Fill ( num_bTags_withTruth );
     */
+
+
+
+  }
+
+
+  int num_rc_jets = 0;
+  std::vector<TLorentzVector> rc_jets = helpers.jet_reclustering(jets);
+  for(auto rc_jet: rc_jets){
+    if(rc_jet.Pt() > 50.0){
+      h_rc_jetPt->Fill( rc_jet.Pt(), eventWeight );
+      h_rc_jetM->Fill( rc_jet.M(), eventWeight );
+      num_rc_jets++;
+    }
   }
 
   h_numJets->Fill( jets->size(), eventWeight );
+  h_numrcJets->Fill( num_rc_jets, eventWeight );
   h_numSubjets->Fill( numSubjets, eventWeight );
 
   return EL::StatusCode::SUCCESS;

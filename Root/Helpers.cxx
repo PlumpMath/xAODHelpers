@@ -1,6 +1,10 @@
 #include "xAODHelpers/Helpers.h"
 #include "AthContainers/ConstDataVector.h"
 
+// jet reclustering
+#include <fastjet/PseudoJet.hh>
+#include <fastjet/ClusterSequence.hh>
+
 xAODHelpers :: Helpers :: Helpers ()
 {
 }
@@ -99,4 +103,72 @@ const xAOD::JetContainer xAODHelpers::Helpers::match_largeR_jet_to_smallR_jets(c
     if(largeR_jet4Vector.DeltaR( smallR_jet->p4() ) <= jetSizeParameter ) matchedJets.push_back( smallR_jet );
   }
   return *matchedJets.asDataVector();
+}
+
+std::vector<TLorentzVector> xAODHelpers::Helpers::jet_reclustering(
+  const xAOD::JetContainer* jets,
+  double radius,
+  double fcut,
+  fastjet::JetAlgorithm rc_alg
+){
+
+  //1. Need to convert the vector of jets to a vector of pseudojets
+  std::vector<fastjet::PseudoJet> input_jets;
+
+  for(auto jet : *jets){
+    const TLorentzVector jet_p4 = jet->p4();
+    input_jets.push_back(
+      fastjet::PseudoJet(
+        jet_p4.Px()/1000.,
+        jet_p4.Py()/1000.,
+        jet_p4.Pz()/1000.,
+        jet_p4.E ()/1000.
+      )
+    );
+  }
+
+  //2. Build up the new jet definitions using input configurations
+  //    - jet algorithm
+  //    - radius
+  fastjet::JetDefinition jet_def(rc_alg, radius);
+
+  //3. Run the Cluster Sequence on pseudojets with the right jet definition above
+  //    cs = clustersequence
+  fastjet::ClusterSequence cs(input_jets, jet_def);
+
+  // 4. Grab the reclustered jets, sorted by pt()
+  //    rc_jets == reclustered jets
+  std::vector<fastjet::PseudoJet> rc_jets = fastjet::sorted_by_pt(cs.inclusive_jets());
+
+  //5.  Apply trimming on PJ.constituents() using fcut
+  //    rc_t_jets == reclustered, trimmed jets
+  std::vector<TLorentzVector> rc_t_jets;
+
+  for(auto rc_jet : rc_jets){
+    TLorentzVector rc_t_jet = TLorentzVector();
+    // loop over subjets
+    for(auto rc_jet_subjet : rc_jet.constituents()){
+      TLorentzVector subjet = TLorentzVector();
+      subjet.SetPtEtaPhiE(
+        rc_jet_subjet.pt(),
+        rc_jet_subjet.eta(),
+        rc_jet_subjet.phi(),
+        rc_jet_subjet.e()
+      );
+      if(subjet.Pt() > fcut*rc_jet.pt()) rc_t_jet += subjet;
+    }
+    rc_t_jets.push_back(rc_t_jet);
+  }
+
+  // notes: rc_t_jets is not sorted by pt due to trimming applied
+  struct sort_by_pt
+  {
+      inline bool operator() (const TLorentzVector lhs, const TLorentzVector rhs)
+      {
+        return (lhs.Pt() < rhs.Pt());
+      }
+  };
+  std::sort(rc_t_jets.begin(), rc_t_jets.end(), sort_by_pt());
+
+  return rc_t_jets;
 }

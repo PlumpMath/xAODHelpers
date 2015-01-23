@@ -23,9 +23,13 @@ class JetHists : public HistogramManager {
         TH1 *h_jetEta; //!
         TH1 *h_jetPhi; //!
 
+        TH1 *h_rc_jetPt; //!
+        TH1 *h_rc_jetM; //!
+
         // topological (eg: per event)
         TH1 *h_numJets; //!
         TH1 *h_numSubjets; //!
+        TH1 *h_numrcJets; //!
 
         // scattering angle of two highest pt jets in CoM frame
         // number of top tags
