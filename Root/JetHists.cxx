@@ -50,8 +50,8 @@ EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeig
   xAOD::JetContainer::const_iterator jet_itr = jets->begin();
   xAOD::JetContainer::const_iterator jet_end = jets->end();
   
-  JetSubStructureUtils::SubjetFinder subjetFinder;
-  //JetSubStructureUtils::SubjetFinder subjetFinder(fastjet::antikt_algorithm, 0.4);
+  //JetSubStructureUtils::SubjetFinder subjetFinder;
+  JetSubStructureUtils::SubjetFinder subjetFinder(fastjet::kt_algorithm, 0.3, 0.0);
   std::vector<fastjet::PseudoJet> subjets;
 
   // for btagging
@@ -79,17 +79,15 @@ EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeig
       h_jetDip23->Fill( (*jet_itr)->getAttribute<float>("Dip23"), eventWeight );
     }
 
-    Info("here", "foo %s", m_name.c_str());
     /* Miles: R=0.4 anti-kT >5 GeV subjets */
     subjets = subjetFinder.result(**jet_itr);
     numSubjets+= subjets.size();
-    Info("afterhere", "foo %s", m_name.c_str());
 
     TLorentzVector trimmedJet = TLorentzVector();
     for(auto subjet: subjets){
       TLorentzVector subjetTLV = TLorentzVector();
-      //subjetTLV.SetPtEtaPhiE( subjet.pt(), subjet.eta(), subjet.phi(), subjet.e() );
-      //if(subjet.pt() > 0.05* (*jet_itr)->pt()) trimmedJet+= subjetTLV;
+      subjetTLV.SetPtEtaPhiE( subjet.pt(), subjet.eta(), subjet.phi(), subjet.e() );
+      if(subjet.pt() > 0.05* (*jet_itr)->pt()) trimmedJet+= subjetTLV;
     }
 
     h_trimmed_jetPt->Fill( trimmedJet.Pt()*0.001, eventWeight );
