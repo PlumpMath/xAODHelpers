@@ -24,6 +24,8 @@ class JetHists : public HistogramManager {
         TH1 *h_jetEta; //!
         TH1 *h_jetPhi; //!
 
+        TH1 *h_trimmed_jetPt; //!
+        TH1 *h_trimmed_jetM; //!
         TH1 *h_rc_jetPt; //!
         TH1 *h_rc_jetM; //!
 

@@ -18,6 +18,9 @@ EL::StatusCode JetHists::initialize() {
   h_jetEta          = book(m_name, "jetEta", "\\eta", 100, -4.9, 4.9, true);
   h_jetPhi          = book(m_name, "jetPhi", "\\phi", 100, -3.2, 3.2, true);
 
+  h_trimmed_jetPt   = book(m_name, "trimmed_jetPt", "{p}_{t} [GeV]", 100, 0, 500, true);
+  h_trimmed_jetM    = book(m_name, "trimmed_jetM", "{m} [GeV]", 100, 0, 500, true);
+
   h_rc_jetPt        = book(m_name, "rc_jetPt", "p_t [GeV]", 100, 0, 500, true);
   h_rc_jetM         = book(m_name, "rc_jetM", "m [GeV]", 100, 0, 500, true);
   h_numrcJets       = book(m_name, "event_numrcJets", "# rc jets", 100, 0, 20, true);
@@ -39,14 +42,16 @@ EL::StatusCode JetHists::initialize() {
   h_num_bTags_withTruth = book("num_bTags_withTruth", m_containerName, "Number of Truth Bs per Jet", 10, -0.5, 9.5, true);
   */
 
+
   return EL::StatusCode::SUCCESS;
 }
 
 EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeight) {
   xAOD::JetContainer::const_iterator jet_itr = jets->begin();
   xAOD::JetContainer::const_iterator jet_end = jets->end();
-
+  
   JetSubStructureUtils::SubjetFinder subjetFinder;
+  //JetSubStructureUtils::SubjetFinder subjetFinder(fastjet::antikt_algorithm, 0.4);
   std::vector<fastjet::PseudoJet> subjets;
 
   // for btagging
@@ -74,9 +79,22 @@ EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeig
       h_jetDip23->Fill( (*jet_itr)->getAttribute<float>("Dip23"), eventWeight );
     }
 
-    /* Miles: R=0.3 kT >5 GeV subjets */
+    Info("here", "foo %s", m_name.c_str());
+    /* Miles: R=0.4 anti-kT >5 GeV subjets */
     subjets = subjetFinder.result(**jet_itr);
     numSubjets+= subjets.size();
+    Info("afterhere", "foo %s", m_name.c_str());
+
+    TLorentzVector trimmedJet = TLorentzVector();
+    for(auto subjet: subjets){
+      TLorentzVector subjetTLV = TLorentzVector();
+      //subjetTLV.SetPtEtaPhiE( subjet.pt(), subjet.eta(), subjet.phi(), subjet.e() );
+      //if(subjet.pt() > 0.05* (*jet_itr)->pt()) trimmedJet+= subjetTLV;
+    }
+
+    h_trimmed_jetPt->Fill( trimmedJet.Pt()*0.001, eventWeight );
+    h_trimmed_jetM->Fill( trimmedJet.M()*0.001, eventWeight );
+
 
     h_jet_numSubjets->Fill( subjets.size(), eventWeight );
 
