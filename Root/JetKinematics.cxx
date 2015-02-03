@@ -25,7 +25,7 @@ EL::StatusCode JetKinematics :: setupJob (EL::Job& job)
 EL::StatusCode JetKinematics :: histInitialize ()
 {
   Info("histInitialize()", "%s", m_jetContainerName.c_str());
-  m_plots = new JetHists(m_jetDisplayName, m_jetDetailLevel);
+  m_plots = new JetHists(m_jetDisplayName, m_jetDetailStr);
   m_plots->initialize();
   m_plots->record( wk() );
   return EL::StatusCode::SUCCESS;
@@ -33,7 +33,7 @@ EL::StatusCode JetKinematics :: histInitialize ()
 
 
 EL::StatusCode JetKinematics :: fileExecute () { return EL::StatusCode::SUCCESS; }
-EL::StatusCode JetKinematics :: changeInput (bool firstFile) { return EL::StatusCode::SUCCESS; }
+EL::StatusCode JetKinematics :: changeInput (bool /*firstFile*/) { return EL::StatusCode::SUCCESS; }
 
 EL::StatusCode JetKinematics :: initialize ()
 {

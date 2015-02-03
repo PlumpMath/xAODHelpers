@@ -16,10 +16,8 @@ class JetKinematics : public EL::Algorithm
 {
 
 private:
-  #ifndef __CINT__
     // for holding the set of histogram codes
     JetHists* m_plots; //!
-  #endif // not __CINT__
 
 public:
   /* For counting and statistics */
@@ -30,7 +28,7 @@ public:
   /* For retrieving the correct jet object */
   std::string m_jetContainerName;
   std::string m_jetDisplayName;
-  int m_jetDetailLevel;
+  std::string m_jetDetailStr;
 
   // this is a standard constructor
   JetKinematics ();

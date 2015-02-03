@@ -43,24 +43,24 @@ int main( int argc, char* argv[] ) {
   /* This is the default container used */
   jk_AntiKt10LC->m_jetContainerName = "AntiKt10LCTopoJets";
   jk_AntiKt10LC->m_jetDisplayName = "AntiKt10";
-  jk_AntiKt10LC->m_jetDetailLevel = 1;
+  jk_AntiKt10LC->m_jetDetailStr = "foo";
 
   JetKinematics* jk_AntiKt4LC = new JetKinematics();
   /* This is the default container used */
   jk_AntiKt4LC->m_jetContainerName = "AntiKt4LCTopoJets";
   jk_AntiKt4LC->m_jetDisplayName = "AntiKt4";
-  jk_AntiKt4LC->m_jetDetailLevel = 1;
+  jk_AntiKt4LC->m_jetDetailStr = "foo";
 
   JetKinematics* jk_AntiKt4Truth = new JetKinematics();
   jk_AntiKt4Truth->m_jetContainerName = "AntiKt4TruthJets";
   jk_AntiKt4Truth->m_jetDisplayName = "Truth4";
-  jk_AntiKt4Truth->m_jetDetailLevel = 1;
+  jk_AntiKt4Truth->m_jetDetailStr = "foo";
 
   // this is an xAOD::JetTrigContainer
   JetKinematics* jk_HLT = new JetKinematics();
   jk_HLT->m_jetContainerName = "HLT_xAOD__JetContainer_TrigHLTJetRec";
   jk_HLT->m_jetDisplayName = "HLT";
-  jk_HLT->m_jetDetailLevel = 0;
+  jk_HLT->m_jetDetailStr = "foo";
 
   // Attach algorithms
   job.algsAdd( jk_AntiKt10LC );
