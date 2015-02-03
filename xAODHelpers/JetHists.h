@@ -1,14 +1,14 @@
 #ifndef xAODHelpers_JetHists_H
 #define xAODHelpers_JetHists_H
 
-#include <xAODHelpers/HistogramManager.h>
+#include <xAODAnaHelpers/HistogramManager.h>
 #include "xAODJet/JetContainer.h"
 
 class JetHists : public HistogramManager {
 
   public:
     // initializer and destructor
-    JetHists(std::string name, int detailLevel);
+    JetHists(std::string name, std::string detailStr);
     ~JetHists();
 
     EL::StatusCode initialize();

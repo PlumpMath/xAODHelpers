@@ -5,8 +5,8 @@
 // subjet finding
 #include "JetSubStructureUtils/SubjetFinder.h"
 
-JetHists::JetHists(std::string name, int detailLevel):
-  HistogramManager(name, detailLevel)
+JetHists::JetHists(std::string name, std::string detailStr):
+  HistogramManager(name, detailStr)
 {
 }
 
@@ -80,7 +80,7 @@ EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeig
 
     h_jet_numSubjets->Fill( subjets.size(), eventWeight );
 
-    if(m_detailLevel >= 1){
+    if(m_detailStr.find("btag") != std::string::npos){
       if( (*jet_itr)->isAvailable<int>("TruthLabelID") ){
         const int truthLabelID = (*jet_itr)->getAttribute<int>("TruthLabelID");
         // if it is a b-quark
