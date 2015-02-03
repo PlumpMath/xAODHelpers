@@ -33,7 +33,7 @@ EL::StatusCode JetKinematics :: histInitialize ()
 
 
 EL::StatusCode JetKinematics :: fileExecute () { return EL::StatusCode::SUCCESS; }
-EL::StatusCode JetKinematics :: changeInput (bool firstFile) { return EL::StatusCode::SUCCESS; }
+EL::StatusCode JetKinematics :: changeInput (bool /*firstFile*/) { return EL::StatusCode::SUCCESS; }
 
 EL::StatusCode JetKinematics :: initialize ()
 {

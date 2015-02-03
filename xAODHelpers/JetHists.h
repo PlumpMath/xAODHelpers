@@ -12,6 +12,7 @@ class JetHists : public HistogramManager {
     ~JetHists();
 
     EL::StatusCode initialize();
+    EL::StatusCode execute(){ return EL::StatusCode::SUCCESS; };
     EL::StatusCode execute( const xAOD::JetContainer* jets, float eventWeight );
     using HistogramManager::book; // make other overloaded versions of book() to show up in subclass
 
