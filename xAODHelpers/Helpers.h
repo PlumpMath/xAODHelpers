@@ -36,8 +36,10 @@ namespace xAODHelpers {
     // given a largeR jet and a container of smallR jets, return a std::pair of dR matching jets
     const xAOD::JetContainer match_largeR_jet_to_smallR_jets(const xAOD::Jet* largeR_jet, const xAOD::JetContainer* smallR_jets);
 
-    // pass in the jets you wish to recluster
+    // jet reclustering and trimming
     std::vector<TLorentzVector> jet_reclustering(const xAOD::JetContainer* jets, double radius = 1.0, double fcut = 0.05, fastjet::JetAlgorithm rc_alg = fastjet::antikt_algorithm);
+    std::vector<TLorentzVector> jet_trimming(const xAOD::JetContainer* jets, double radius = 0.3, double fcut = 0.05, fastjet::JetAlgorithm rc_alg = fastjet::kt_algorithm);
+
   private:
 
   };

@@ -5,6 +5,10 @@
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
 
+// jet trimming
+#include <fastjet/Filter.hh>
+#include <JetEDM/JetConstituentFiller.h>
+
 xAODHelpers :: Helpers :: Helpers ()
 {
 }
@@ -105,20 +109,22 @@ const xAOD::JetContainer xAODHelpers::Helpers::match_largeR_jet_to_smallR_jets(c
   return *matchedJets.asDataVector();
 }
 
-/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
-|                                               |
-|   Author  : Giordon Stark                     |
-|   Email   : gstark@cern.ch                    |
-|   Thanks to Ben Nachman for inspiration       |
-|                                               |
-|   jet_reclustering():                         |
-|       @jets   : jet container to recluster    |
-|                   and trim                    |
-|       @radius : radius of large-R jet         |
-|       @fcut   : trimming cut to apply         |
-|                                               |
-|                                               |
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*\
+|                                                                              |
+|   Author  : Giordon Stark                                                    |
+|   Email   : gstark@cern.ch                                                   |
+|   Thanks to Ben Nachman for inspiration                                      |
+|                                                                              |
+|   jet_reclustering():                                                        |
+|       Takes a set of small-R jets and reclusters to large-R jets             |
+|                                                                              |
+|       @jets   : jet container to recluster and trim                          |
+|       @radius : radius of large-R jet                                        |
+|       @fcut   : trimming cut to apply                                        |
+|       @rc_alg : clustering algorithm                                         |
+|                                                                              |
+|                                                                              |
+\*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 std::vector<TLorentzVector> xAODHelpers::Helpers::jet_reclustering(
   const xAOD::JetContainer* jets,
   double radius,
@@ -127,6 +133,7 @@ std::vector<TLorentzVector> xAODHelpers::Helpers::jet_reclustering(
 ){
 
   //1. Need to convert the vector of jets to a vector of pseudojets
+  //    only need p4() since we're using them as inputs
   std::vector<fastjet::PseudoJet> input_jets;
 
   for(auto jet : *jets){
@@ -185,4 +192,47 @@ std::vector<TLorentzVector> xAODHelpers::Helpers::jet_reclustering(
   std::sort(rc_t_jets.begin(), rc_t_jets.end(), sort_by_pt());
 
   return rc_t_jets;
+}
+
+/* http://www.lpthe.jussieu.fr/~salam/fastjet/repo/doxygen-3.0alpha2/classfastjet_1_1Filter.html#usage */
+std::vector<TLorentzVector> jet_trimming(
+  const xAOD::JetContainer* jets,
+  double radius,
+  double fcut,
+  fastjet::JetAlgorithm rc_alg
+){
+
+  //1. Create the trimmer
+  fastjet::Filter trimmer(fastjet::JetDefinition(rc_alg, radius), fastjet::SelectorPtFractionMin(fcut));
+
+  //2.  Apply the trimmer to the jets, this requires the JetEDM
+  //        convert xAOD::Jet to PseudoJet with constituents
+  //        apply trimmer on the PseudoJet
+  //        create the TLorentzVector and push
+  std::vector<TLorentzVector> t_jets;
+  for(const auto jet: *jets){
+    TLorentzVector t_jet = TLorentzVector();
+    std::vector<fastjet::PseudoJet> constit_pseudojets = jet::JetConstituentFiller::constituentPseudoJets(*jet);
+    fastjet::PseudoJet t_pjet = trimmer(fastjet::join(constit_pseudojets));
+    t_jet.SetPtEtaPhiE(
+      t_pjet.pt(),
+      t_pjet.eta(),
+      t_pjet.phi(),
+      t_pjet.e()
+    );
+    t_jets.push_back(t_jet);
+  }
+
+  // notes: t_jets is not sorted by pt due to trimming applied
+  struct sort_by_pt
+  {
+      inline bool operator() (const TLorentzVector lhs, const TLorentzVector rhs)
+      {
+        return (lhs.Pt() > rhs.Pt());
+      }
+  };
+  std::sort(t_jets.begin(), t_jets.end(), sort_by_pt());
+
+  return t_jets;
+
 }
