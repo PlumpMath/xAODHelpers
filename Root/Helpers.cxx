@@ -235,7 +235,11 @@ TLorentzVector xAODHelpers::Helpers::jet_trimming(
   //        apply trimmer on the PseudoJet
   TLorentzVector t_jet = TLorentzVector();
   std::vector<fastjet::PseudoJet> constit_pseudojets = jet::JetConstituentFiller::constituentPseudoJets(*jet);
-  fastjet::PseudoJet t_pjet = trimmer(fastjet::join(constit_pseudojets));
+
+  //3. Need to use ClusterSequence to recluster jet again once we found constituents
+  fastjet::ClusterSequence cs(constit_pseudojets, fastjet::JetDefinition( (fastjet::JetAlgorithm) jet->getAlgorithmType(), jet->getSizeParameter()));
+
+  fastjet::PseudoJet t_pjet = trimmer(fastjet::join(cs.inclusive_jets()));
 
   t_jet.SetPtEtaPhiE(
     t_pjet.pt(),
