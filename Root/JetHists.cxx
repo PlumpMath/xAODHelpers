@@ -79,7 +79,7 @@ EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeig
       h_jetDip23->Fill( (*jet_itr)->getAttribute<float>("Dip23"), eventWeight );
     }
 
-    /* Miles: R=0.3 anti-kT >0 GeV subjets */
+    /* Miles: R=0.3 kT >0 GeV subjets */
     subjets = subjetFinder.result(**jet_itr);
     numSubjets+= subjets.size();
 
