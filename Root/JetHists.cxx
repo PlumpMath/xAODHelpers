@@ -83,16 +83,10 @@ EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeig
     subjets = subjetFinder.result(**jet_itr);
     numSubjets+= subjets.size();
 
-    TLorentzVector trimmedJet = TLorentzVector();
-    for(auto subjet: subjets){
-      TLorentzVector subjetTLV = TLorentzVector();
-      subjetTLV.SetPtEtaPhiE( subjet.pt(), subjet.eta(), subjet.phi(), subjet.e() );
-      if(subjet.pt() > 0.05* (*jet_itr)->pt()) trimmedJet+= subjetTLV;
-    }
+    TLorentzVector trimmedJet = helpers.jet_trimming(*jet_itr);
 
     h_trimmed_jetPt->Fill( trimmedJet.Pt()*0.001, eventWeight );
     h_trimmed_jetM->Fill( trimmedJet.M()*0.001, eventWeight );
-
 
     h_jet_numSubjets->Fill( subjets.size(), eventWeight );
 

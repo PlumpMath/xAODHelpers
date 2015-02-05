@@ -6,7 +6,7 @@
 #include <fastjet/ClusterSequence.hh>
 
 // jet trimming
-#include <fastjet/Filter.hh>
+#include <fastjet/tools/Filter.hh>
 #include <JetEDM/JetConstituentFiller.h>
 
 xAODHelpers :: Helpers :: Helpers ()
@@ -195,32 +195,16 @@ std::vector<TLorentzVector> xAODHelpers::Helpers::jet_reclustering(
 }
 
 /* http://www.lpthe.jussieu.fr/~salam/fastjet/repo/doxygen-3.0alpha2/classfastjet_1_1Filter.html#usage */
-std::vector<TLorentzVector> jet_trimming(
+std::vector<TLorentzVector> xAODHelpers::Helpers::jet_trimming(
   const xAOD::JetContainer* jets,
   double radius,
   double fcut,
   fastjet::JetAlgorithm rc_alg
 ){
 
-  //1. Create the trimmer
-  fastjet::Filter trimmer(fastjet::JetDefinition(rc_alg, radius), fastjet::SelectorPtFractionMin(fcut));
-
-  //2.  Apply the trimmer to the jets, this requires the JetEDM
-  //        convert xAOD::Jet to PseudoJet with constituents
-  //        apply trimmer on the PseudoJet
-  //        create the TLorentzVector and push
   std::vector<TLorentzVector> t_jets;
   for(const auto jet: *jets){
-    TLorentzVector t_jet = TLorentzVector();
-    std::vector<fastjet::PseudoJet> constit_pseudojets = jet::JetConstituentFiller::constituentPseudoJets(*jet);
-    fastjet::PseudoJet t_pjet = trimmer(fastjet::join(constit_pseudojets));
-    t_jet.SetPtEtaPhiE(
-      t_pjet.pt(),
-      t_pjet.eta(),
-      t_pjet.phi(),
-      t_pjet.e()
-    );
-    t_jets.push_back(t_jet);
+    t_jets.push_back( jet_trimming(jet, radius, fcut, rc_alg) );
   }
 
   // notes: t_jets is not sorted by pt due to trimming applied
@@ -234,5 +218,32 @@ std::vector<TLorentzVector> jet_trimming(
   std::sort(t_jets.begin(), t_jets.end(), sort_by_pt());
 
   return t_jets;
+}
+
+TLorentzVector xAODHelpers::Helpers::jet_trimming(
+  const xAOD::Jet* jet,
+  double radius,
+  double fcut,
+  fastjet::JetAlgorithm rc_alg
+){
+
+  //1. Create the trimmer
+  fastjet::Filter trimmer(fastjet::JetDefinition(rc_alg, radius), fastjet::SelectorPtFractionMin(fcut));
+
+  //2.  Apply the trimmer to the jet, this requires the JetEDM
+  //        convert xAOD::Jet to PseudoJet with constituents
+  //        apply trimmer on the PseudoJet
+  TLorentzVector t_jet = TLorentzVector();
+  std::vector<fastjet::PseudoJet> constit_pseudojets = jet::JetConstituentFiller::constituentPseudoJets(*jet);
+  fastjet::PseudoJet t_pjet = trimmer(fastjet::join(constit_pseudojets));
+
+  t_jet.SetPtEtaPhiE(
+    t_pjet.pt(),
+    t_pjet.eta(),
+    t_pjet.phi(),
+    t_pjet.e()
+  );
+
+  return t_jet;
 
 }
