@@ -7,7 +7,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "AthContainers/ConstDataVector.h"
 
-#include <xAODAnaHelpers/JetHists.h>
+#include <xAODHelpers/WTaggedHists.h>
 #include <xAODHelpers/WTaggedHistsAlgo.h>
 #include <xAODAnaHelpers/HelperFunctions.h>
 #include <xAODAnaHelpers/HelperClasses.h>
@@ -58,11 +58,11 @@ EL::StatusCode WTaggedHistsAlgo :: histInitialize ()
   }
 
   // declare class and add histograms to output
-  m_plots0W = new JetHists(m_name+"0W", m_detailStr);
-  m_plots1W = new JetHists(m_name+"1W", m_detailStr);
-  m_plots2W = new JetHists(m_name+"2W", m_detailStr);
-  m_plots3W = new JetHists(m_name+"3W", m_detailStr);
-  m_plots4W = new JetHists(m_name+"4W", m_detailStr);
+  m_plots0W = new WTaggedHists(m_name+"0W", m_detailStr);
+  m_plots1W = new WTaggedHists(m_name+"1W", m_detailStr);
+  m_plots2W = new WTaggedHists(m_name+"2W", m_detailStr);
+  m_plots3W = new WTaggedHists(m_name+"3W", m_detailStr);
+  m_plots4W = new WTaggedHists(m_name+"4W", m_detailStr);
 
   m_plots0W -> initialize( );
   m_plots1W -> initialize( );
@@ -131,33 +131,52 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
   // this will be the collection processed - no matter what!!
   const xAOD::JetContainer* inJets = HelperFunctions::getContainer<xAOD::JetContainer>(m_inContainerName, m_event, m_store);
 
-  std::cout << inJets << "|" << eventInfo << std::endl;
-  std::cout << m_plots0W << "|" << m_plots1W << "|" << m_plots2W << "|" << m_plots3W << "|" << m_plots4W << std::endl;
-  Info("execute()", "here");
+  if(!inJets->size() > 0) return EL::StatusCode::SUCCESS;
+
+  // original containers are sorted by pt
+  ConstDataVector<xAOD::JetContainer> nontaggedJets(SG::VIEW_ELEMENTS);
+  ConstDataVector<xAOD::JetContainer> wtaggedJets(SG::VIEW_ELEMENTS);
+
+  // loop over, split into two containers
+  for(const auto jet: *inJets){
+    // skip anythin less than 2.5 GeV
+    if(jet->pt()/1e3 < 2.5) continue;
+
+    if(static_cast<bool>(passTagDecor(*jet)))
+      wtaggedJets.push_back(jet);
+    else
+      nontaggedJets.push_back(jet);
+  }
+
+  // convert back to actual const containers
+  const xAOD::JetContainer* nontagged_jets  = nontaggedJets.asDataVector();
+  const xAOD::JetContainer* wtagged_jets    = wtaggedJets.asDataVector();
+
+  if(nontagged_jets->size() == 0 || wtagged_jets == 0) return EL::StatusCode::SUCCESS;
 
   switch( numTagDecor(*eventInfo) ){
       case 0:
-        m_plots0W->execute( inJets, eventWeight );
+        m_plots0W->execute( (*nontagged_jets)[0], eventWeight );
       break;
       case 1:
-        m_plots1W->execute( inJets, eventWeight );
+        m_plots1W->execute( (*wtagged_jets)[0], eventWeight );
+        m_plots1W->execute( wtagged_jets, nontagged_jets, eventWeight );
       break;
       case 2:
-        m_plots2W->execute( inJets, eventWeight );
+        m_plots2W->execute( (*wtagged_jets)[0], eventWeight );
+        m_plots2W->execute( wtagged_jets, nontagged_jets, eventWeight );
       break;
       case 3:
-        m_plots3W->execute( inJets, eventWeight );
+        m_plots3W->execute( (*wtagged_jets)[0], eventWeight );
+        m_plots3W->execute( wtagged_jets, nontagged_jets, eventWeight );
       break;
       case 4:
-        m_plots4W->execute( inJets, eventWeight );
+        m_plots4W->execute( (*wtagged_jets)[0], eventWeight );
+        m_plots4W->execute( wtagged_jets, nontagged_jets, eventWeight );
       break;
       default:
         Info("execute()", "More than 4 W-tags???");
       break;
-  }
-
-  for(const auto jet: *inJets){
-    std::cout << "|" << static_cast<bool>(passTagDecor(*jet)) << "|" << std::endl;
   }
 
   return EL::StatusCode::SUCCESS;

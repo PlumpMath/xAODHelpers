@@ -9,7 +9,7 @@
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
 
-class JetHists;
+class WTaggedHists;
 
 class WTaggedHistsAlgo : public EL::Algorithm
 {
@@ -26,11 +26,11 @@ public:
 
 
 private:
-  JetHists* m_plots0W; //!
-  JetHists* m_plots1W; //!
-  JetHists* m_plots2W; //!
-  JetHists* m_plots3W; //!
-  JetHists* m_plots4W; //!
+  WTaggedHists* m_plots0W; //!
+  WTaggedHists* m_plots1W; //!
+  WTaggedHists* m_plots2W; //!
+  WTaggedHists* m_plots3W; //!
+  WTaggedHists* m_plots4W; //!
 
   // configuration variables
   std::string m_inContainerName;  //!

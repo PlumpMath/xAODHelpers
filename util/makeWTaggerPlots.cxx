@@ -7,7 +7,6 @@
 #include <TSystem.h>
 
 #include <BosonTaggerXAOD/WTagger.h>
-#include <xAODAnaHelpers/JetHistsAlgo.h>
 #include <xAODHelpers/WTaggedHistsAlgo.h>
 
 int main( int argc, char* argv[] ) {
@@ -43,13 +42,10 @@ int main( int argc, char* argv[] ) {
   wtagger->setConfig("$ROOTCOREBIN/data/BosonTaggerXAOD/test_taggerExample.config");
 
   WTaggedHistsAlgo* plotWTags = new WTaggedHistsAlgo("wtags_", "$ROOTCOREBIN/data/xAODHelpers/test_plotWTagExample.config");
-  JetHistsAlgo* plotJets = new JetHistsAlgo("jets/", "$ROOTCOREBIN/data/xAODHelpers/test_plotWTagExample.config");
 
   // Attach algorithms
   job.algsAdd( wtagger );
   job.algsAdd( plotWTags );
-  job.algsAdd( plotJets );
-
 
   // Run the job using the local/direct driver:
   EL::DirectDriver driver;
