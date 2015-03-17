@@ -10,6 +10,10 @@
 #include "xAODRootAccess/TStore.h"
 
 class WTaggedHists;
+class LeadingJetKinematicHists;
+class TaggedVsNontaggedHists;
+
+class HistogramManager;
 
 class WTaggedHistsAlgo : public EL::Algorithm
 {
@@ -29,8 +33,17 @@ private:
   WTaggedHists* m_plots0W; //!
   WTaggedHists* m_plots1W; //!
   WTaggedHists* m_plots2W; //!
-  WTaggedHists* m_plots3W; //!
-  WTaggedHists* m_plots4W; //!
+
+  LeadingJetKinematicHists* m_kinematics0W; //!
+  LeadingJetKinematicHists* m_kinematics1W; //!
+  LeadingJetKinematicHists* m_kinematics2W; //!
+
+  TaggedVsNontaggedHists* m_taggedVsNonTagged0W; //!
+  TaggedVsNontaggedHists* m_taggedVsNonTagged1W; //!
+  TaggedVsNontaggedHists* m_taggedVsNonTagged2W; //!
+
+  // hold all plot stuff in here for easy clearing
+  std::vector<HistogramManager*> m_plotsHolder; //!
 
   // configuration variables
   std::string m_inContainerName;  //!

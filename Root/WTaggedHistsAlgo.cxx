@@ -8,6 +8,9 @@
 #include "AthContainers/ConstDataVector.h"
 
 #include <xAODHelpers/WTaggedHists.h>
+#include <xAODHelpers/TaggedVsNontaggedHists.h>
+#include <xAODHelpers/LeadingJetKinematicHists.h>
+
 #include <xAODHelpers/WTaggedHistsAlgo.h>
 #include <xAODAnaHelpers/HelperFunctions.h>
 #include <xAODAnaHelpers/HelperClasses.h>
@@ -31,8 +34,12 @@ WTaggedHistsAlgo :: WTaggedHistsAlgo (std::string name, std::string configName) 
   m_plots0W(nullptr),
   m_plots1W(nullptr),
   m_plots2W(nullptr),
-  m_plots3W(nullptr),
-  m_plots4W(nullptr)
+  m_kinematics0W(nullptr),
+  m_kinematics1W(nullptr),
+  m_kinematics2W(nullptr),
+  m_taggedVsNonTagged0W(nullptr),
+  m_taggedVsNonTagged1W(nullptr),
+  m_taggedVsNonTagged2W(nullptr)
 {
 }
 
@@ -57,24 +64,34 @@ EL::StatusCode WTaggedHistsAlgo :: histInitialize ()
     Info("histInitialize()", "Succesfully configured! \n");
   }
 
+
   // declare class and add histograms to output
   m_plots0W = new WTaggedHists(m_name+"0W", m_detailStr);
   m_plots1W = new WTaggedHists(m_name+"1W", m_detailStr);
   m_plots2W = new WTaggedHists(m_name+"2W", m_detailStr);
-  m_plots3W = new WTaggedHists(m_name+"3W", m_detailStr);
-  m_plots4W = new WTaggedHists(m_name+"4W", m_detailStr);
 
-  m_plots0W -> initialize( );
-  m_plots1W -> initialize( );
-  m_plots2W -> initialize( );
-  m_plots3W -> initialize( );
-  m_plots4W -> initialize( );
+  m_kinematics0W = new LeadingJetKinematicHists(m_name+"0W", m_detailStr);
+  m_kinematics1W = new LeadingJetKinematicHists(m_name+"1W", m_detailStr);
+  m_kinematics2W = new LeadingJetKinematicHists(m_name+"2W", m_detailStr);
 
-  m_plots0W -> record( wk() );
-  m_plots1W -> record( wk() );
-  m_plots2W -> record( wk() );
-  m_plots3W -> record( wk() );
-  m_plots4W -> record( wk() );
+  m_taggedVsNonTagged0W = new TaggedVsNontaggedHists(m_name+"0W", m_detailStr);
+  m_taggedVsNonTagged1W = new TaggedVsNontaggedHists(m_name+"1W", m_detailStr);
+  m_taggedVsNonTagged2W = new TaggedVsNontaggedHists(m_name+"2W", m_detailStr);
+
+  m_plotsHolder.push_back(m_plots0W);
+  m_plotsHolder.push_back(m_plots1W);
+  m_plotsHolder.push_back(m_plots2W);
+  m_plotsHolder.push_back(m_kinematics0W);
+  m_plotsHolder.push_back(m_kinematics1W);
+  m_plotsHolder.push_back(m_kinematics2W);
+  m_plotsHolder.push_back(m_taggedVsNonTagged0W);
+  m_plotsHolder.push_back(m_taggedVsNonTagged1W);
+  m_plotsHolder.push_back(m_taggedVsNonTagged2W);
+
+  for(auto plotGroup: m_plotsHolder){
+    plotGroup -> initialize();
+    plotGroup -> record( wk() );
+  }
 
   return EL::StatusCode::SUCCESS;
 }
@@ -156,26 +173,18 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
 
   switch( numTagDecor(*eventInfo) ){
       case 0:
-        m_plots0W->execute( (*nontagged_jets)[0], eventWeight );
+        m_kinematics0W->execute( (*nontagged_jets)[0], eventWeight );
       break;
       case 1:
-        m_plots1W->execute( (*wtagged_jets)[0], eventWeight );
-        m_plots1W->execute( wtagged_jets, nontagged_jets, eventWeight );
+        m_kinematics1W->execute( (*wtagged_jets)[0], eventWeight );
+        m_taggedVsNonTagged1W->execute( (*wtagged_jets)[0], (*nontagged_jets)[0], eventWeight );
       break;
       case 2:
-        m_plots2W->execute( (*wtagged_jets)[0], eventWeight );
-        m_plots2W->execute( wtagged_jets, nontagged_jets, eventWeight );
-      break;
-      case 3:
-        m_plots3W->execute( (*wtagged_jets)[0], eventWeight );
-        m_plots3W->execute( wtagged_jets, nontagged_jets, eventWeight );
-      break;
-      case 4:
-        m_plots4W->execute( (*wtagged_jets)[0], eventWeight );
-        m_plots4W->execute( wtagged_jets, nontagged_jets, eventWeight );
+        m_kinematics2W->execute( (*wtagged_jets)[0], eventWeight );
+        m_taggedVsNonTagged2W->execute( (*wtagged_jets)[0], (*nontagged_jets)[0], eventWeight );
       break;
       default:
-        Info("execute()", "More than 4 W-tags???");
+        Info("execute()", "More than 2 W-tags???");
       break;
   }
 
@@ -187,26 +196,13 @@ EL::StatusCode WTaggedHistsAlgo :: finalize () { return EL::StatusCode::SUCCESS;
 
 EL::StatusCode WTaggedHistsAlgo :: histFinalize () {
   // clean up memory
-  if(m_plots0W){
-    delete m_plots0W;
-    m_plots0W = 0;
+  for(auto plotGroup: m_plotsHolder){
+    if(plotGroup){
+      delete plotGroup;
+      plotGroup = 0;
+    }
   }
-  if(m_plots1W){
-    delete m_plots1W;
-    m_plots1W = 0;
-  }
-  if(m_plots2W){
-    delete m_plots2W;
-    m_plots2W = 0;
-  }
-  if(m_plots3W){
-    delete m_plots3W;
-    m_plots3W = 0;
-  }
-  if(m_plots4W){
-    delete m_plots4W;
-    m_plots4W = 0;
-  }
+  m_plotsHolder.clear();
 
   return EL::StatusCode::SUCCESS;
 }
