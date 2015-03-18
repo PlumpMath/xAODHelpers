@@ -8,7 +8,7 @@ class LeadingJetKinematicHists : public HistogramManager
 {
   public:
 
-    LeadingJetKinematicHists(std::string name, std::string detailStr);
+    LeadingJetKinematicHists(std::string name, std::string detailStr, std::string prepend);
     ~LeadingJetKinematicHists();
 
     EL::StatusCode initialize();
@@ -17,6 +17,8 @@ class LeadingJetKinematicHists : public HistogramManager
 
     using HistogramManager::book; // make other overloaded version of book() to show up in subclass
     using HistogramManager::execute; // overload
+
+    std::string m_prepend;          //!
 
   private:
     //basic

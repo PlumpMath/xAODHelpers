@@ -70,9 +70,12 @@ EL::StatusCode WTaggedHistsAlgo :: histInitialize ()
   m_plots1W = new WTaggedHists(m_name+"1W", m_detailStr);
   m_plots2W = new WTaggedHists(m_name+"2W", m_detailStr);
 
-  m_kinematics0W = new LeadingJetKinematicHists(m_name+"0W", m_detailStr);
-  m_kinematics1W = new LeadingJetKinematicHists(m_name+"1W", m_detailStr);
-  m_kinematics2W = new LeadingJetKinematicHists(m_name+"2W", m_detailStr);
+  m_kinematics0W = new LeadingJetKinematicHists(m_name+"0W", m_detailStr, "leading_nonwjet");
+  m_kinematics1W = new LeadingJetKinematicHists(m_name+"1W", m_detailStr, "leading_nonwjet");
+  m_kinematics2W = new LeadingJetKinematicHists(m_name+"2W", m_detailStr, "leading_nonwjet");
+
+  m_w_kinematics1W = new LeadingJetKinematicHists(m_name+"1W", m_detailStr, "leading_wjet");
+  m_w_kinematics2W = new LeadingJetKinematicHists(m_name+"2W", m_detailStr, "leading_wjet");
 
   m_taggedVsNonTagged0W = new TaggedVsNontaggedHists(m_name+"0W", m_detailStr);
   m_taggedVsNonTagged1W = new TaggedVsNontaggedHists(m_name+"1W", m_detailStr);
@@ -84,6 +87,8 @@ EL::StatusCode WTaggedHistsAlgo :: histInitialize ()
   m_plotsHolder.push_back(m_kinematics0W);
   m_plotsHolder.push_back(m_kinematics1W);
   m_plotsHolder.push_back(m_kinematics2W);
+  m_plotsHolder.push_back(m_w_kinematics1W);
+  m_plotsHolder.push_back(m_w_kinematics2W);
   m_plotsHolder.push_back(m_taggedVsNonTagged0W);
   m_plotsHolder.push_back(m_taggedVsNonTagged1W);
   m_plotsHolder.push_back(m_taggedVsNonTagged2W);
@@ -173,14 +178,19 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
 
   switch( numTagDecor(*eventInfo) ){
       case 0:
+        m_plots0W->execute( inJets, eventWeight );
         m_kinematics0W->execute( (*nontagged_jets)[0], eventWeight );
       break;
       case 1:
-        m_kinematics1W->execute( (*wtagged_jets)[0], eventWeight );
+        m_plots1W->execute( inJets, eventWeight );
+        m_kinematics1W->execute( (*nontagged_jets)[0], eventWeight );
+        m_w_kinematics1W->execute( (*wtagged_jets)[0], eventWeight );
         m_taggedVsNonTagged1W->execute( (*wtagged_jets)[0], (*nontagged_jets)[0], eventWeight );
       break;
       case 2:
-        m_kinematics2W->execute( (*wtagged_jets)[0], eventWeight );
+        m_plots2W->execute( inJets, eventWeight );
+        m_kinematics2W->execute( (*nontagged_jets)[0], eventWeight );
+        m_w_kinematics2W->execute( (*wtagged_jets)[0], eventWeight );
         m_taggedVsNonTagged2W->execute( (*wtagged_jets)[0], (*nontagged_jets)[0], eventWeight );
       break;
       default:

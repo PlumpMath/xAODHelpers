@@ -1,7 +1,8 @@
 #include <xAODHelpers/LeadingJetKinematicHists.h>
 
-LeadingJetKinematicHists :: LeadingJetKinematicHists (std::string name, std::string detailStr) :
-  HistogramManager(name, detailStr)
+LeadingJetKinematicHists :: LeadingJetKinematicHists (std::string name, std::string detailStr, std::string prepend) :
+  HistogramManager(name, detailStr),
+  m_prepend(prepend)
 {
 }
 
@@ -9,18 +10,18 @@ LeadingJetKinematicHists :: ~LeadingJetKinematicHists () {}
 
 EL::StatusCode LeadingJetKinematicHists::initialize() {
 
-  m_jetPt           = book(m_name, "wjetPt",  "W-Jet p_{T} [GeV]", 120, 0, 600);
-  m_jetEta          = book(m_name, "wjetEta", "W-Jet #eta",         80, -4, 4);
-  m_jetPhi          = book(m_name, "wjetPhi", "W-Jet #phi",120, -TMath::Pi(), TMath::Pi() );
-  m_jetM            = book(m_name, "wjetMass", "W-Jet Mass [GeV]",120, 0, 400);
-  m_jetE            = book(m_name, "wjetEnergy", "W-Jet Energy [GeV]",120, 0, 4000);
-  m_jetRapidity     = book(m_name, "wjetRapidity", "W-Jet Rapidity",120, -10, 10);
+  m_jetPt           = book(m_name, m_prepend+"_Pt",  "p_{T} [GeV]", 120, 0, 600);
+  m_jetEta          = book(m_name, m_prepend+"_Eta", "#eta",         80, -4, 4);
+  m_jetPhi          = book(m_name, m_prepend+"_Phi", "#phi",120, -TMath::Pi(), TMath::Pi() );
+  m_jetM            = book(m_name, m_prepend+"_Mass", "Mass [GeV]",120, 0, 400);
+  m_jetE            = book(m_name, m_prepend+"_Energy", "Energy [GeV]",120, 0, 4000);
+  m_jetRapidity     = book(m_name, m_prepend+"_Rapidity", "Rapidity",120, -10, 10);
 
-  m_jetPositions    = book(m_name, "wjetPositions", "W-Jet #eta", 80, -4, 4, "W-Jet #phi", 120, -TMath::Pi(), TMath::Pi() );
+  m_jetPositions    = book(m_name, m_prepend+"_Positions", "#eta", 80, -4, 4, "#phi", 120, -TMath::Pi(), TMath::Pi() );
 
-  m_jetTau1         = book(m_name, "wjetTau1", "W-Jet #tau_{1}", 100, 0, 1);
-  m_jetTau2         = book(m_name, "wjetTau2", "W-Jet #tau_{2}", 100, 0, 1);
-  m_jetTau21        = book(m_name, "wjetTau21", "W-Jet #tau_{21}", 100, 0, 1);
+  m_jetTau1         = book(m_name, m_prepend+"_Tau1", "#tau_{1}", 100, 0, 1);
+  m_jetTau2         = book(m_name, m_prepend+"_Tau2", "#tau_{2}", 100, 0, 1);
+  m_jetTau21        = book(m_name, m_prepend+"_Tau21", "#tau_{21}", 100, 0, 1);
 
   Info("LeadingJetKinematicHists::initialize()", m_name.c_str());
 

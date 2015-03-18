@@ -18,9 +18,13 @@ class TaggedVsNontaggedHists : public HistogramManager
     using HistogramManager::execute; // overload
 
   private:
-    TH1F* m_WJ_M;                   //!
-    TH1F* m_WJ_pT;                  //!
+    TH2F* m_WJ_m;                   //!
+    TH2F* m_WJ_pt;                  //!
+    TH2F* m_WJ_eta;                 //!
+    TH2F* m_WJ_phi;                 //!
     TH1F* m_WJ_DR;                  //!
+    TH1F* m_WJ_DEta;                //!
+    TH1F* m_WJ_DPhi;                //!
 };
 
 #endif

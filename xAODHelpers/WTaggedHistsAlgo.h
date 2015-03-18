@@ -38,6 +38,9 @@ private:
   LeadingJetKinematicHists* m_kinematics1W; //!
   LeadingJetKinematicHists* m_kinematics2W; //!
 
+  LeadingJetKinematicHists* m_w_kinematics1W; //!
+  LeadingJetKinematicHists* m_w_kinematics2W; //!
+
   TaggedVsNontaggedHists* m_taggedVsNonTagged0W; //!
   TaggedVsNontaggedHists* m_taggedVsNonTagged1W; //!
   TaggedVsNontaggedHists* m_taggedVsNonTagged2W; //!
