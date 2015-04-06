@@ -6,7 +6,6 @@
 #include "SampleHandler/DiskListLocal.h"
 #include <TSystem.h>
 
-#include <BosonTaggerXAOD/WTagger.h>
 #include <xAODHelpers/WTaggedHistsAlgo.h>
 
 int main( int argc, char* argv[] ) {
@@ -38,13 +37,9 @@ int main( int argc, char* argv[] ) {
   job.sampleHandler( sh );
 
   // Add our analysis to the job:
-  WTagger* wtagger = new WTagger();
-  wtagger->setConfig("$ROOTCOREBIN/data/BosonTaggerXAOD/test_taggerExample.config");
-
   WTaggedHistsAlgo* plotWTags = new WTaggedHistsAlgo("wtags_", "$ROOTCOREBIN/data/xAODHelpers/test_plotWTagExample.config");
 
   // Attach algorithms
-  job.algsAdd( wtagger );
   job.algsAdd( plotWTags );
 
   // Run the job using the local/direct driver:

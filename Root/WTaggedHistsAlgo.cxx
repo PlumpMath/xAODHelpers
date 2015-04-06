@@ -18,6 +18,9 @@
 #include <xAODAnaHelpers/tools/ReturnCheck.h>
 #include <xAODAnaHelpers/tools/ReturnCheckConfig.h>
 
+// w-boson tag
+#include "JetSubStructureUtils/BosonTag.h"
+
 #include "TEnv.h"
 #include "TSystem.h"
 
@@ -138,12 +141,11 @@ EL::StatusCode WTaggedHistsAlgo :: initialize ()
 EL::StatusCode WTaggedHistsAlgo :: execute ()
 {
 
-  // pass WTag decoration
-  static SG::AuxElement::Accessor<char> passTagDecor(m_decorationName);
-  // num WTags decoration
-  static SG::AuxElement::Accessor<int> numTagDecor("num_"+m_decorationName);
+  // load up the w-tagger
+  static JetSubStructureUtils::BosonTag bosonTagger;
 
-  const xAOD::EventInfo* eventInfo = HelperFunctions::getContainer<xAOD::EventInfo>("EventInfo", m_event, m_store);
+  const xAOD::EventInfo* eventInfo(nullptr);
+  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, true), "");
 
   float eventWeight(1);
   if( eventInfo->isAvailable< float >( "eventWeight" ) ) {
@@ -151,7 +153,8 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
   }
 
   // this will be the collection processed - no matter what!!
-  const xAOD::JetContainer* inJets = HelperFunctions::getContainer<xAOD::JetContainer>(m_inContainerName, m_event, m_store);
+  const xAOD::JetContainer* inJets(nullptr);
+  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(inJets, m_inContainerName, m_event, m_store, true), "Could not retrieve the jet");
 
   if(!inJets->size() > 0) return EL::StatusCode::SUCCESS;
 
@@ -164,10 +167,11 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
     // skip anythin less than 2.5 GeV
     if(jet->pt()/1e3 < 2.5) continue;
 
-    if(static_cast<bool>(passTagDecor(*jet)))
+    if(bosonTagger.result(*jet)) {
       wtaggedJets.push_back(jet);
-    else
+    } else {
       nontaggedJets.push_back(jet);
+    }
   }
 
   // convert back to actual const containers
@@ -176,7 +180,7 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
 
   if(nontagged_jets->size() == 0 || wtagged_jets == 0) return EL::StatusCode::SUCCESS;
 
-  switch( numTagDecor(*eventInfo) ){
+  switch( static_cast<int>(wtagged_jets->size()) ){
       case 0:
         m_plots0W->execute( inJets, eventWeight );
         m_kinematics0W->execute( (*nontagged_jets)[0], eventWeight );
