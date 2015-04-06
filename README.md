@@ -8,6 +8,7 @@ rcSetup Base,2.1.30
 git clone -b WTagPlots --single-branch https://github.com/kratsg/xAODHelpers.git
 rc checkout_pkg atlasoff/Reconstruction/Jet/JetSubStructureUtils/tags/JetSubStructureUtils-00-02-08
 rc find_packages
+rc compile_pkg JetSubStructureUtils
 rc compile_pkg xAODHelpers
 ```
 
