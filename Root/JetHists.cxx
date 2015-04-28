@@ -12,44 +12,44 @@ JetHists::JetHists(std::string name, std::string detailStr):
 
 JetHists::~JetHists() {}
 
-EL::StatusCode JetHists::initialize() {
-  h_jetPt           = book(m_name, "jetPt", "{p}_{t} [GeV]", 100, 0, 500, true);
-  h_jetM            = book(m_name, "jetM", "{m} [GeV]", 100, 0, 500, true);
-  h_jetEta          = book(m_name, "jetEta", "\\eta", 100, -4.9, 4.9, true);
-  h_jetPhi          = book(m_name, "jetPhi", "\\phi", 100, -3.2, 3.2, true);
+StatusCode JetHists::initialize() {
+  h_jetPt           = book(m_name, "jetPt", "{p}_{t} [GeV]", 100, 0, 500);
+  h_jetM            = book(m_name, "jetM", "{m} [GeV]", 100, 0, 500);
+  h_jetEta          = book(m_name, "jetEta", "\\eta", 100, -4.9, 4.9);
+  h_jetPhi          = book(m_name, "jetPhi", "\\phi", 100, -3.2, 3.2);
 
-  h_trimmed_jetPt   = book(m_name, "trimmed_jetPt", "{p}_{t} [GeV]", 100, 0, 500, true);
-  h_trimmed_jetM    = book(m_name, "trimmed_jetM", "{m} [GeV]", 100, 0, 500, true);
+  h_trimmed_jetPt   = book(m_name, "trimmed_jetPt", "{p}_{t} [GeV]", 100, 0, 500);
+  h_trimmed_jetM    = book(m_name, "trimmed_jetM", "{m} [GeV]", 100, 0, 500);
 
-  h_rc_jetPt        = book(m_name, "rc_jetPt", "p_t [GeV]", 100, 0, 500, true);
-  h_rc_jetM         = book(m_name, "rc_jetM", "m [GeV]", 100, 0, 500, true);
-  h_numrcJets       = book(m_name, "event_numrcJets", "# rc jets", 100, 0, 20, true);
+  h_rc_jetPt        = book(m_name, "rc_jetPt", "p_t [GeV]", 100, 0, 500);
+  h_rc_jetM         = book(m_name, "rc_jetM", "m [GeV]", 100, 0, 500);
+  h_numrcJets       = book(m_name, "event_numrcJets", "# rc jets", 100, 0, 20);
 
-  h_numJets         = book(m_name, "event_numJets", "# jets", 100, 0, 20, true);
-  h_numSubjets      = book(m_name, "event_numSubjets", "# subjets", 100, 0, 200, true);
+  h_numJets         = book(m_name, "event_numJets", "# jets", 100, 0, 20);
+  h_numSubjets      = book(m_name, "event_numSubjets", "# subjets", 100, 0, 200);
 
-  h_jetTau1         = book(m_name, "jetTau1", "{\\tau}_{1}", 100, 0, 1, true);
-  h_jetTau2         = book(m_name, "jetTau2", "{\\tau}_{2}", 100, 0, 1, true);
-  h_jetTau3         = book(m_name, "jetTau3", "{\\tau}_{3}", 100, 0, 1, true);
-  h_jetDip12        = book(m_name, "jetDip12", "{dip}_{12}", 100, 0, 1, true);
-  h_jetDip13        = book(m_name, "jetDip13", "{dip}_{13}", 100, 0, 1, true);
-  h_jetDip23        = book(m_name, "jetDip23", "{dip}_{23}", 100, 0, 1, true);
-  h_jet_numSubjets  = book(m_name, "jet_numSubjets", "# subjets", 100, 0, 10, true);
+  h_jetTau1         = book(m_name, "jetTau1", "{\\tau}_{1}", 100, 0, 1);
+  h_jetTau2         = book(m_name, "jetTau2", "{\\tau}_{2}", 100, 0, 1);
+  h_jetTau3         = book(m_name, "jetTau3", "{\\tau}_{3}", 100, 0, 1);
+  h_jetDip12        = book(m_name, "jetDip12", "{dip}_{12}", 100, 0, 1);
+  h_jetDip13        = book(m_name, "jetDip13", "{dip}_{13}", 100, 0, 1);
+  h_jetDip23        = book(m_name, "jetDip23", "{dip}_{23}", 100, 0, 1);
+  h_jet_numSubjets  = book(m_name, "jet_numSubjets", "# subjets", 100, 0, 10);
 
-  h_mv1_discriminant = book(m_name, "mv1_discriminant", "MV1 Discriminant", 200, 0, 1, true);
+  h_mv1_discriminant = book(m_name, "mv1_discriminant", "MV1 Discriminant", 200, 0, 1);
   /*
-  h_num_bTags        = book("num_bTags", m_containerName, "Number of B-Tags per Jet", 10, -0.5, 9.5, true);
-  h_num_bTags_withTruth = book("num_bTags_withTruth", m_containerName, "Number of Truth Bs per Jet", 10, -0.5, 9.5, true);
+  h_num_bTags        = book("num_bTags", m_containerName, "Number of B-Tags per Jet", 10, -0.5, 9.5);
+  h_num_bTags_withTruth = book("num_bTags_withTruth", m_containerName, "Number of Truth Bs per Jet", 10, -0.5, 9.5);
   */
 
 
-  return EL::StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
-EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeight) {
+StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeight) {
   xAOD::JetContainer::const_iterator jet_itr = jets->begin();
   xAOD::JetContainer::const_iterator jet_end = jets->end();
-  
+
   //JetSubStructureUtils::SubjetFinder subjetFinder;
   JetSubStructureUtils::SubjetFinder subjetFinder(fastjet::kt_algorithm, 0.3, 0.0);
   std::vector<fastjet::PseudoJet> subjets;
@@ -136,5 +136,5 @@ EL::StatusCode JetHists::execute(const xAOD::JetContainer* jets, float eventWeig
   h_numrcJets->Fill( num_rc_jets, eventWeight );
   h_numSubjets->Fill( numSubjets, eventWeight );
 
-  return EL::StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }

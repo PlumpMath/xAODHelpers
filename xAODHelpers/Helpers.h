@@ -41,6 +41,8 @@ namespace xAODHelpers {
     std::vector<TLorentzVector> jet_trimming(const xAOD::JetContainer* jets, double radius = 0.3, double fcut = 0.05, fastjet::JetAlgorithm rc_alg = fastjet::kt_algorithm);
     TLorentzVector jet_trimming(const xAOD::Jet* jet, double radius = 0.3, double fcut = 0.05, fastjet::JetAlgorithm rc_alg = fastjet::kt_algorithm);
 
+    void jet_to_pj(std::vector<fastjet::PseudoJet>& out_pj, const xAOD::JetContainer* in_jets);
+    void jet_reclustering(xAOD::JetContainer& out_jets, const xAOD::JetContainer* in_jets, double radius = 1.0, fastjet::JetAlgorithm rc_alg = fastjet::antikt_algorithm);
 
   private:
 

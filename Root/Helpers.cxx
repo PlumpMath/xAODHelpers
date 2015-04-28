@@ -9,6 +9,9 @@
 #include <fastjet/tools/Filter.hh>
 #include <JetEDM/JetConstituentFiller.h>
 
+// what does this do?
+#include <JetRec/JetFromPseudojet.h>
+
 xAODHelpers :: Helpers :: Helpers ()
 {
 }
@@ -250,4 +253,72 @@ TLorentzVector xAODHelpers::Helpers::jet_trimming(
 
   return t_jet;
 
+}
+
+
+void xAODHelpers::Helpers::jet_to_pj(std::vector<fastjet::PseudoJet>& out_pj, const xAOD::JetContainer* in_jets){
+  for(auto jet : *in_jets){
+    const TLorentzVector jet_p4 = jet->p4();
+    out_pj.push_back(
+      fastjet::PseudoJet(
+        jet_p4.Px(),
+        jet_p4.Py(),
+        jet_p4.Pz(),
+        jet_p4.E ()
+      )
+    );
+  }
+  return;
+}
+
+void xAODHelpers::Helpers::jet_reclustering(xAOD::JetContainer& out_jets, const xAOD::JetContainer* in_jets, double radius, fastjet::JetAlgorithm rc_alg){
+  //1. Need to convert the vector of jets to a vector of pseudojets
+  //    only need p4() since we're using them as inputs
+  std::vector<fastjet::PseudoJet> input_jets;
+  xAODHelpers::Helpers::jet_to_pj(input_jets, in_jets);
+
+  //2. Build up the new jet definitions using input configurations
+  //    - jet algorithm
+  //    - radius
+  fastjet::JetDefinition jet_def(rc_alg, radius);
+
+  //3. Run the Cluster Sequence on pseudojets with the right jet definition above
+  //    cs = clustersequence
+  fastjet::ClusterSequence cs(input_jets, jet_def);
+
+  // 4. Grab the reclustered jets, sorted by pt()
+  //    rc_jets == reclustered jets
+  std::vector<fastjet::PseudoJet> rc_jets = fastjet::sorted_by_pt(cs.inclusive_jets());
+
+  JetFromPseudojet* pj2j_tool = new JetFromPseudojet("JetFromPseudoJetTool");
+  //pj2j_tool->setProperty("Attributes", std::vector<std::string>("...", ..., "...");
+
+  const xAOD::JetInput::Type input_type = (*in_jets)[0]->getInputType();
+  xAOD::JetTransform::Type transform_type(xAOD::JetTransform::UnknownTransform);
+  switch(rc_alg){
+    case fastjet::antikt_algorithm:
+      transform_type = xAOD::JetTransform::AntiKtRecluster;
+    break;
+    case fastjet::kt_algorithm:
+      transform_type = xAOD::JetTransform::KtRecluster;
+    break;
+    case fastjet::cambridge_algorithm:
+      transform_type = xAOD::JetTransform::CamKtRecluster;
+    break;
+    default:
+      transform_type = xAOD::JetTransform::UnknownTransform;
+    break;
+  }
+
+  for(auto rc_jet: rc_jets){
+    xAOD::Jet* jet_from_pj = pj2j_tool->add(rc_jet, out_jets, nullptr);
+    jet_from_pj->setInputType(input_type);
+    jet_from_pj->setAlgorithmType(xAOD::JetAlgorithmType::undefined_jet_algorithm);
+    jet_from_pj->setSizeParameter(radius);
+    jet_from_pj->auxdecor<int>("TransformType") = transform_type;
+  }
+
+  delete pj2j_tool;
+
+  return;
 }
