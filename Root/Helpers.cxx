@@ -257,16 +257,14 @@ TLorentzVector xAODHelpers::Helpers::jet_trimming(
 
 
 void xAODHelpers::Helpers::jet_to_pj(std::vector<fastjet::PseudoJet>& out_pj, const xAOD::JetContainer* in_jets){
-  for(auto jet : *in_jets){
-    const TLorentzVector jet_p4 = jet->p4();
-    out_pj.push_back(
-      fastjet::PseudoJet(
-        jet_p4.Px(),
-        jet_p4.Py(),
-        jet_p4.Pz(),
-        jet_p4.E ()
-      )
-    );
+  for(auto it = in_jets->begin(); it != in_jets->end(); ++it){
+    const TLorentzVector jet_p4 = (*it)->p4();
+    fastjet::PseudoJet pj(jet_p4.Px(),
+                          jet_p4.Py(),
+                          jet_p4.Pz(),
+                          jet_p4.E ());
+    pj.set_user_index(std::distance(in_jets->begin(), it));
+    out_pj.push_back(pj);
   }
   return;
 }
@@ -322,13 +320,8 @@ void xAODHelpers::Helpers::jet_reclustering(xAOD::JetContainer& out_jets, const 
     // add constituents
     std::cout << "Constituent" << std::endl;
     for(auto con: rc_jet.constituents()){
-      unsigned int pos = std::find(input_jets.begin(), input_jets.end(), con) - input_jets.begin();
-      printf(printStr.c_str(), con.pt()/1000., con.m()/1000., con.eta(), con.phi(), pos, input_jets.size());
-      if(pos == input_jets.size()){
-        std::cout << "\tNot found!" << std::endl;
-      } else {
-        jet_from_pj->addConstituent(in_jets->at(pos));
-      }
+      printf(printStr.c_str(), con.pt()/1000., con.m()/1000., con.eta(), con.phi(), con.user_index(), input_jets.size());
+      jet_from_pj->addConstituent(in_jets->at(con.user_index()));
     }
   }
 
