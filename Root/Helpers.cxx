@@ -292,8 +292,9 @@ void xAODHelpers::Helpers::jet_reclustering(xAOD::JetContainer& out_jets, const 
 
   JetFromPseudojet* pj2j_tool = new JetFromPseudojet("JetFromPseudoJetTool");
   //pj2j_tool->setProperty("Attributes", std::vector<std::string>("...", ..., "...");
+  //pj2j_tool->msg().setLevel( MSG::DEBUG );
 
-  const xAOD::JetInput::Type input_type = (*in_jets)[0]->getInputType();
+  const xAOD::JetInput::Type input_type = in_jets->at(0)->getInputType();
   xAOD::JetTransform::Type transform_type(xAOD::JetTransform::UnknownTransform);
   switch(rc_alg){
     case fastjet::antikt_algorithm:
@@ -316,6 +317,13 @@ void xAODHelpers::Helpers::jet_reclustering(xAOD::JetContainer& out_jets, const 
     jet_from_pj->setAlgorithmType(xAOD::JetAlgorithmType::undefined_jet_algorithm);
     jet_from_pj->setSizeParameter(radius);
     jet_from_pj->auxdecor<int>("TransformType") = transform_type;
+
+    // add constituents
+    for(auto con: rc_jet.constituents()){
+      int pos = std::find(rc_jets.begin(), rc_jets.end(), con) - rc_jets.begin();
+      printf("\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\tPos: %d/%zu", con.pt(), con.m(), con.eta(), con.phi(), pos, rc_jets.size());
+      jet_from_pj->addConstituent(in_jets->at(pos));
+    }
   }
 
   delete pj2j_tool;

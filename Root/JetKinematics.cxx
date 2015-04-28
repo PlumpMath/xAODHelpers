@@ -90,19 +90,19 @@ EL::StatusCode JetKinematics :: execute ()
   // recluster 0.4 jets into 1.0 jets
   helpers.jet_reclustering(*reclusteredJets, smallRjets);
 
-  std::string printStr = "\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\n";
+  std::string printStr = "\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\tNum Subjets: %zu\n";
 
   std::cout << smallRjets->size() << " small-R jets" << std::endl;
   for(const auto jet: *smallRjets)
-    printf(printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi());
+    printf(printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi(), jet->numConstituents());
 
   std::cout << largeRjets->size() << " large-R jets" << std::endl;
   for(const auto jet: *largeRjets)
-    printf(printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi());
+    printf(printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi(), jet->numConstituents());
 
   std::cout << reclusteredJets->size() << " reclustered jets" << std::endl;
   for(const auto jet: *reclusteredJets)
-    printf(printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi());
+    printf(printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi(), jet->numConstituents());
 
   delete reclusteredJets;
   delete reclusteredJetsAux;
