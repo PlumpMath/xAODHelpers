@@ -321,7 +321,7 @@ void xAODHelpers::Helpers::jet_reclustering(xAOD::JetContainer& out_jets, const 
     // add constituents
     for(auto con: rc_jet.constituents()){
       int pos = std::find(rc_jets.begin(), rc_jets.end(), con) - rc_jets.begin();
-      printf("\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\tPos: %d/%zu", con.pt(), con.m(), con.eta(), con.phi(), pos, rc_jets.size());
+      printf("\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\tPos: %d/%zu\n", con.pt(), con.m(), con.eta(), con.phi(), pos, rc_jets.size());
       jet_from_pj->addConstituent(in_jets->at(pos));
     }
   }
