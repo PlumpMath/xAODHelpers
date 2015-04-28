@@ -318,12 +318,17 @@ void xAODHelpers::Helpers::jet_reclustering(xAOD::JetContainer& out_jets, const 
     jet_from_pj->setSizeParameter(radius);
     jet_from_pj->auxdecor<int>("TransformType") = transform_type;
 
+    std::string printStr = "\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\tPos: %d/%zu\n";
     // add constituents
     std::cout << "Constituent" << std::endl;
     for(auto con: rc_jet.constituents()){
-      int pos = std::find(rc_jets.begin(), rc_jets.end(), con) - rc_jets.begin();
-      printf("\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\tPos: %d/%zu\n", con.pt()/1000., con.m()/1000., con.eta(), con.phi(), pos, rc_jets.size());
-      jet_from_pj->addConstituent(in_jets->at(pos));
+      unsigned int pos = std::find(input_jets.begin(), input_jets.end(), con) - input_jets.begin();
+      printf(printStr.c_str(), con.pt()/1000., con.m()/1000., con.eta(), con.phi(), pos, input_jets.size());
+      if(pos == input_jets.size()){
+        std::cout << "\tNot found!" << std::endl;
+      } else {
+        jet_from_pj->addConstituent(in_jets->at(pos));
+      }
     }
   }
 
