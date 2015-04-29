@@ -7,9 +7,6 @@
 #include <xAODRootAccess/TEvent.h>
 #include <xAODRootAccess/TStore.h>
 
-// for histograms
-#include <TH1.h>
-
 // jet definition
 #include <fastjet/JetDefinition.hh>
 
@@ -31,6 +28,7 @@ private:
   bool m_writeOutput = false;
   fastjet::JetAlgorithm m_clusteringAlgorithm; //!
 
+public:
   // this is a standard constructor
   JetReclustering ();
 
