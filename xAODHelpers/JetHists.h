@@ -11,9 +11,9 @@ class JetHists : public HistogramManager {
     JetHists(std::string name, std::string detailStr);
     ~JetHists();
 
-    EL::StatusCode initialize();
-    EL::StatusCode execute(){ return EL::StatusCode::SUCCESS; };
-    EL::StatusCode execute( const xAOD::JetContainer* jets, float eventWeight );
+    StatusCode initialize();
+    StatusCode execute(){ return StatusCode::SUCCESS; };
+    StatusCode execute( const xAOD::JetContainer* jets, float eventWeight );
     using HistogramManager::book; // make other overloaded versions of book() to show up in subclass
 
   private:

@@ -51,7 +51,6 @@ int main( int argc, char* argv[] ) {
   jk_AntiKt4LC->m_jetDisplayName = "AntiKt4";
   jk_AntiKt4LC->m_jetDetailStr = "foo";
 
-  /*
   JetKinematics* jk_AntiKt4Truth = new JetKinematics();
   jk_AntiKt4Truth->m_jetContainerName = "AntiKt4TruthJets";
   jk_AntiKt4Truth->m_jetDisplayName = "Truth4";
@@ -62,12 +61,12 @@ int main( int argc, char* argv[] ) {
   jk_HLT->m_jetContainerName = "HLT_xAOD__JetContainer_TrigHLTJetRec";
   jk_HLT->m_jetDisplayName = "HLT";
   jk_HLT->m_jetDetailStr = "foo";
-  */
 
   // Attach algorithms
   job.algsAdd( jk_AntiKt10LC );
   job.algsAdd( jk_AntiKt4LC );
-  //job.algsAdd( jk_AntiKt4Truth );
+  job.algsAdd( jk_AntiKt4Truth );
+  job.algsAdd( jk_HLT );
 
 
   // Run the job using the local/direct driver:

@@ -21,6 +21,8 @@ namespace xAODHelpers {
   public:
     Helpers();
 
+    struct sort_by_pt;
+
     // booleans to help check for certain properties
     bool check_bTag_cut(const xAOD::Jet* jet, double bTagCut);
     bool check_truthLabel_ID(const xAOD::Jet* jet, int truthLabel_ID);
@@ -41,6 +43,27 @@ namespace xAODHelpers {
     std::vector<TLorentzVector> jet_trimming(const xAOD::JetContainer* jets, double radius = 0.3, double fcut = 0.05, fastjet::JetAlgorithm rc_alg = fastjet::kt_algorithm);
     TLorentzVector jet_trimming(const xAOD::Jet* jet, double radius = 0.3, double fcut = 0.05, fastjet::JetAlgorithm rc_alg = fastjet::kt_algorithm);
 
+    void jet_to_pj(std::vector<fastjet::PseudoJet>& out_pj, const xAOD::JetContainer* in_jets);
+    void jet_reclustering(xAOD::JetContainer& out_jets, const xAOD::JetContainer* in_jets, double radius = 1.0, fastjet::JetAlgorithm rc_alg = fastjet::antikt_algorithm);
+
+
+    template<typename T>
+    T sort_container_pt(T* inCont){
+      T sortedCont(SG::VIEW_ELEMENTS);
+      for(auto el : *inCont) sortedCont.push_back( el );
+
+      std::sort(sortedCont.begin(), sortedCont.end(), xAODHelpers::Helpers::sort_by_pt());
+      return sortedCont;
+    }
+
+    template<typename T>
+    const T sort_container_pt(const T* inCont){
+      ConstDataVector<T> sortedCont(SG::VIEW_ELEMENTS);
+
+      for(auto el : *inCont) sortedCont.push_back( el );
+      std::sort(sortedCont.begin(), sortedCont.end(), xAODHelpers::Helpers::sort_by_pt());
+      return *sortedCont.asDataVector();
+    }
 
   private:
 

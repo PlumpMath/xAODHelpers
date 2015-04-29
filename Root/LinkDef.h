@@ -1,4 +1,5 @@
 #include <xAODHelpers/JetKinematics.h>
+#include <xAODHelpers/JetReclustering.h>
 
 #ifdef __CINT__
 
@@ -9,4 +10,5 @@
 
 /* Add a pragma link for any EventLoop algorithm */
 #pragma link C++ class JetKinematics+;
+#pragma link C++ class JetReclustering+;
 #endif
