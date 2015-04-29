@@ -105,9 +105,6 @@ EL::StatusCode JetReclustering :: execute ()
     RETURN_CHECK("JetReclustering::execute()", m_event->record( reclusteredJets, m_outputJetName ),             ("Could not record container to event: "+ m_outputJetName).c_str());
     RETURN_CHECK("JetReclustering::execute()", m_event->record( reclusteredJetsAux, m_outputJetName + "Aux."),  ("Could not record aux container to event: "+ m_outputJetName+"Aux.").c_str());
 
-    RETURN_CHECK("JetReclustering::execute()", m_event->copy( m_outputJetName ),                                ("Could not copy container to file: "+ m_outputJetName).c_str());
-    RETURN_CHECK("JetReclustering::execute()", m_event->copy( m_outputJetName + "Aux." ),                       ("Could not copy aux container to file: "+m_outputJetName+"Aux.").c_str());
-
     // fill the file
     m_event->fill();
   }
