@@ -3,17 +3,14 @@
 ## Installing
 The last stable analysis base used is **2.0.23**. To install,
 ```bash
-mkdir myRootCore && cd myRootCore
-rcSetup Base,2.0.23
+rcSetup Base,2.1.30
 git clone https://github.com/kratsg/xAODHelpers.git
-rc checkout_pkg atlasoff/Reconstruction/Jet/JetSubStructureUtils
+rc checkout_pkg atlasinst/Institutes/UChicago/xAODAnaHelpers/trunk
+source xAODAnaHelpers/scripts/ElectronEfficiencyCorrectionPatch_Base.2.1.30.sh
+rc checkout_pkg atlasoff/Reconstruction/Jet/JetSubStructureUtils/tags/JetSubStructureUtils-00-02-08
 rc find_packages
-rc compile_pkg xAODHelpers
+rc compile
 ```
-
-## Dependencies
- - dependencies are in [cmt/Makefile.RootCore](cmt/Makefile.RootCore)
- - uses Miles [JetSubstructureTools](https://github.com/mileswu/JetSubstructureTools) which is included in AnalysisBase 2.0.18+ _except for SubjetFinder_.
 
 ### Functionality Included
  - `JetHists` is a plotting class for Jets to predefine a lot of plots to make for an input JetContainer (see `execute()`). This should only be changed to add new plots, but not to add in plots that require cuts on a jet -- that should be done in an EL algorithm such as `JetKinematics`.
@@ -24,11 +21,26 @@ rc compile_pkg xAODHelpers
 
 ![Jet Masses for AntiKt10 reclustered jets, AntiKt10LCTopo jets, and AntiKt10 trimmed jets](/data/jet_masses.png?raw=true "Jet Masses")
 
-### Tested Against AnalysisBase versions:
- - 2.0.23
- - 2.0.22
- - 2.0.20
- - 2.0.18
+### Jet Reclustering
+
+Using `xAODAnaHelpers`, we provide an easy way for you to enable jet reclustering in a job. In particular, given a `json` file
+
+```json
+[
+  {
+    "class": "JetReclustering",
+    "configs": {
+      "m_inputJetName": "AntiKt4LCTopoJets",
+      "m_outputJetName": "AntiKt10LCTopoJetsRCAntiKt4LCTopoJets",
+      "m_radius": 1.0,
+      "m_debug": false,
+      "m_outputXAODName": "output"
+    }
+  }
+]
+```
+
+you can run the reclustering code and produce a basic output file (by setting `m_outputXAODName`) and running `xAH_run.py input.root  --config config.json`. This is a minimal working example. You can include this in an algorithm chain.
 
 #### Authors
 - [Giordon Stark](https://github.com/kratsg)
