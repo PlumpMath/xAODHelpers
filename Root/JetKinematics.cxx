@@ -4,13 +4,9 @@
 
 #include <xAODHelpers/JetKinematics.h>
 #include <xAODHelpers/JetHists.h>
-#include <xAODHelpers/Helpers.h>
 
 // count events
 #include "xAODEventInfo/EventInfo.h"
-
-#include "xAODAnaHelpers/tools/ReturnCheck.h"
-#include "xAODAnaHelpers/HelperFunctions.h"
 
 // this is needed to distribute the algorithm to the workers
 ClassImp(JetKinematics)
@@ -57,55 +53,31 @@ EL::StatusCode JetKinematics :: execute ()
 
   //----------------------------
   // Event information
-  //---------------------------
-  const xAOD::EventInfo* eventInfo(nullptr);
-  RETURN_CHECK("JetKinematics::execute()", HelperFunctions::retrieve( eventInfo, "EventInfo", m_event, 0, false), "");
+  //--------------------------- 
+  const xAOD::EventInfo* eventInfo = 0;
+  if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
+    Error("execute()", "Failed to retrieve event info collection. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
 
   //----------------------------
   // Event weight
-  //---------------------------
+  //--------------------------- 
   float eventWeight(1);
   if( eventInfo->isAvailable< float >( "eventWeight" ) ){
     eventWeight = eventInfo->auxdecor< float >( "eventWeight" );
   }
 
-  const xAOD::JetContainer* jets(nullptr);
-  RETURN_CHECK("JetKinematics::execute()", HelperFunctions::retrieve( jets, m_jetContainerName, m_event, m_store, false), "");
+  const xAOD::JetContainer* jets = 0;
+  if ( !m_event->retrieve( jets, m_jetContainerName ).isSuccess() ){
+    if ( !m_store->retrieve( jets, m_jetContainerName ).isSuccess() ){
+      Error("execute()  ", "Failed to retrieve %s container. Exiting.", m_jetContainerName.c_str() );
+      return EL::StatusCode::FAILURE;
+    }
+  }
 
   m_plots->execute(jets, eventWeight);
 
-
-  // check the reclustering
-  const xAOD::JetContainer* smallRjets(nullptr);
-  RETURN_CHECK("JetKinematics::execute()", HelperFunctions::retrieve( smallRjets, "AntiKt4LCTopoJets", m_event, m_store, false), "");
-
-  const xAOD::JetContainer* largeRjets(nullptr);
-  RETURN_CHECK("JetKinematics::execute()", HelperFunctions::retrieve( largeRjets, "AntiKt10LCTopoJets", m_event, m_store, false), "");
-
-  xAODHelpers::Helpers helpers;
-  xAOD::JetContainer* reclusteredJets = new xAOD::JetContainer();
-  xAOD::JetAuxContainer* reclusteredJetsAux = new xAOD::JetAuxContainer;
-  reclusteredJets->setStore(reclusteredJetsAux);
-
-  // recluster 0.4 jets into 1.0 jets
-  helpers.jet_reclustering(*reclusteredJets, smallRjets);
-
-  std::string printStr = "\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\tNum Subjets: %zu\n";
-
-  std::cout << smallRjets->size() << " small-R jets" << std::endl;
-  for(const auto jet: *smallRjets)
-    printf(printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi(), jet->numConstituents());
-
-  std::cout << largeRjets->size() << " large-R jets" << std::endl;
-  for(const auto jet: *largeRjets)
-    printf(printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi(), jet->numConstituents());
-
-  std::cout << reclusteredJets->size() << " reclustered jets" << std::endl;
-  for(const auto jet: *reclusteredJets)
-    printf(printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi(), jet->numConstituents());
-
-  delete reclusteredJets;
-  delete reclusteredJetsAux;
   return EL::StatusCode::SUCCESS;
 }
 
