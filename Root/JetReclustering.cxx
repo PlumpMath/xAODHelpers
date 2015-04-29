@@ -24,22 +24,7 @@ EL::StatusCode JetReclustering :: setupJob (EL::Job& job)
   job.useXAOD();
   xAOD::Init(("JetReclustering_"+m_inputJetName).c_str()).ignore(); // call before opening first file
 
-  std::map<std::string, fastjet::JetAlgorithm> algNameToAlg = {{"kt_algorithm", fastjet::kt_algorithm}, {"cambridge_algorithm", fastjet::cambridge_algorithm}, {"antikt_algorithm", fastjet::antikt_algorithm}};
-
-  if(!m_clusteringAlgorithmName.empty()){
-    if(!algNameToAlg.count(m_clusteringAlgorithmName)){
-      Error("setupJob()", "Only `kt_algorithm`, `cambridge_algorithm`, and `antikt_algorithm` are supported!");
-      return EL::StatusCode::FAILURE;
-    }
-    m_clusteringAlgorithm = algNameToAlg.at(m_clusteringAlgorithmName);
-  } else {
-    Info("setupJob()", "m_clusteringAlgorithmName is empty. Setting to `antikt_algorithm` by default.");
-    m_clusteringAlgorithm = algNameToAlg.at("antikt_algorithm");
-  }
-
-  m_writeOutput = !m_outputXAODName.empty();
-
-  if(m_writeOutput){
+  if(!m_outputXAODName.empty()){
     // write an output xAOD
     EL::OutputStream output_xAOD(m_outputXAODName);
     job.outputAdd(output_xAOD);
@@ -58,8 +43,20 @@ EL::StatusCode JetReclustering :: initialize ()
   m_event = wk()->xaodEvent();
   m_store = wk()->xaodStore();
 
-  if(m_writeOutput){
-    TFile *file = wk()->getOutputFile("output_xAOD");
+  std::map<std::string, fastjet::JetAlgorithm> algNameToAlg = {{"kt_algorithm", fastjet::kt_algorithm}, {"cambridge_algorithm", fastjet::cambridge_algorithm}, {"antikt_algorithm", fastjet::antikt_algorithm}};
+  if(!m_clusteringAlgorithmName.empty()){
+    if(!algNameToAlg.count(m_clusteringAlgorithmName)){
+      Error("setupJob()", "Only `kt_algorithm`, `cambridge_algorithm`, and `antikt_algorithm` are supported!");
+      return EL::StatusCode::FAILURE;
+    }
+    m_clusteringAlgorithm = algNameToAlg.at(m_clusteringAlgorithmName);
+  } else {
+    Info("setupJob()", "m_clusteringAlgorithmName is empty. Setting to `antikt_algorithm` by default.");
+    m_clusteringAlgorithm = algNameToAlg.at("antikt_algorithm");
+  }
+
+  if(!m_outputXAODName.empty()){
+    TFile *file = wk()->getOutputFile(m_outputXAODName);
     RETURN_CHECK("JetReclustering::execute()", m_event->writeTo(file), "");
   }
 
@@ -90,7 +87,7 @@ EL::StatusCode JetReclustering :: execute ()
 
   // print debugging information if needed
   if(m_debug){
-    std::string printStr = "\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\tNum Subjets: %zu\n";
+    std::string printStr = "\tPt: %0.2f\tMass: %0.2f\tEta: %0.2f\tPhi: %0.2f\tNum Subjets: %zu";
     Info("execute()", "%zu small-R jets", smallRjets->size());
     for(const auto jet: *smallRjets)
       Info("execute()", printStr.c_str(), jet->pt()/1000., jet->m()/1000., jet->eta(), jet->phi(), jet->numConstituents());
@@ -104,7 +101,7 @@ EL::StatusCode JetReclustering :: execute ()
   RETURN_CHECK("JetReclustering::execute()", m_store->record( reclusteredJets, m_outputJetName ),               ("Could not record container to store: "+ m_outputJetName).c_str());
   RETURN_CHECK("JetReclustering::execute()", m_store->record( reclusteredJetsAux, m_outputJetName + "Aux."),    ("Could not record aux container to store: "+ m_outputJetName+"Aux.").c_str());
 
-  if(m_writeOutput){
+  if(!m_outputXAODName.empty()){
     RETURN_CHECK("JetReclustering::execute()", m_event->record( reclusteredJets, m_outputJetName ),             ("Could not record container to event: "+ m_outputJetName).c_str());
     RETURN_CHECK("JetReclustering::execute()", m_event->record( reclusteredJetsAux, m_outputJetName + "Aux."),  ("Could not record aux container to event: "+ m_outputJetName+"Aux.").c_str());
 
@@ -121,7 +118,7 @@ EL::StatusCode JetReclustering :: execute ()
 EL::StatusCode JetReclustering :: postExecute () { return EL::StatusCode::SUCCESS; }
 
 EL::StatusCode JetReclustering :: finalize () {
-  if(m_writeOutput){
+  if(!m_outputXAODName.empty()){
     TFile *file = wk()->getOutputFile(m_outputXAODName);
     RETURN_CHECK("JetReclustering::finalize()", m_event->finishWritingTo( file ), "Could not finish writing to file.");
   }

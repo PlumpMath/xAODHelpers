@@ -298,6 +298,9 @@ void xAODHelpers::Helpers::jet_to_pj(std::vector<fastjet::PseudoJet>& out_pj, co
 }
 
 void xAODHelpers::Helpers::jet_reclustering(xAOD::JetContainer& out_jets, const xAOD::JetContainer* in_jets, double radius, fastjet::JetAlgorithm rc_alg){
+
+  std::map<fastjet::JetAlgorithm, std::string> algToAlgName = {{fastjet::kt_algorithm, "kt_algorithm"}, {fastjet::cambridge_algorithm, "cambridge_algorithm"}, {fastjet::antikt_algorithm, "antikt_algorithm"}};
+
   //1. Need to convert the vector of jets to a vector of pseudojets; only need p4() since we're using them as inputs
   std::vector<fastjet::PseudoJet> input_jets;
   xAODHelpers::Helpers::jet_to_pj(input_jets, in_jets);

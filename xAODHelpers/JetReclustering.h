@@ -25,7 +25,6 @@ private:
   xAOD::TEvent *m_event; //!
   xAOD::TStore *m_store; //!
 
-  bool m_writeOutput = false;
   fastjet::JetAlgorithm m_clusteringAlgorithm; //!
 
 public:
