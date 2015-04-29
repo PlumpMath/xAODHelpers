@@ -1,6 +1,9 @@
 #include "xAODHelpers/Helpers.h"
 #include "AthContainers/ConstDataVector.h"
 
+// for templating
+#include "xAODBase/IParticleContainer.h"
+
 // jet reclustering
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
@@ -15,6 +18,31 @@
 xAODHelpers :: Helpers :: Helpers ()
 {
 }
+
+
+struct xAODHelpers :: Helpers :: sort_by_pt
+{
+
+    inline bool operator() (const TLorentzVector& lhs, const TLorentzVector& rhs)
+    {
+      return (lhs.Pt() > rhs.Pt());
+    }
+
+    inline bool operator() (const TLorentzVector* lhs, const TLorentzVector* rhs)
+    {
+      return (lhs->Pt() > rhs->Pt());
+    }
+
+    inline bool operator() (const xAOD::IParticle& lhs, const xAOD::IParticle& rhs)
+    {
+      return (lhs.pt() > rhs.pt());
+    }
+
+    inline bool operator() (const xAOD::IParticle* lhs, const xAOD::IParticle* rhs)
+    {
+      return (lhs->pt() > rhs->pt());
+    }
+};
 
 bool xAODHelpers::Helpers::check_bTag_cut(const xAOD::Jet* jet, double bTagCut)
 {
