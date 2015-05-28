@@ -8,7 +8,7 @@ LeadingJetKinematicHists :: LeadingJetKinematicHists (std::string name, std::str
 
 LeadingJetKinematicHists :: ~LeadingJetKinematicHists () {}
 
-EL::StatusCode LeadingJetKinematicHists::initialize() {
+StatusCode LeadingJetKinematicHists::initialize() {
 
   m_jetPt           = book(m_name, m_prepend+"_Pt",  "p_{T} [GeV]", 120, 0, 600);
   m_jetEta          = book(m_name, m_prepend+"_Eta", "#eta",         80, -4, 4);
@@ -25,14 +25,14 @@ EL::StatusCode LeadingJetKinematicHists::initialize() {
 
   Info("LeadingJetKinematicHists::initialize()", m_name.c_str());
 
-  return EL::StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
-EL::StatusCode LeadingJetKinematicHists::execute( const xAOD::JetContainer* jets, float eventWeight ) {
+StatusCode LeadingJetKinematicHists::execute( const xAOD::JetContainer* jets, float eventWeight ) {
   return this->execute( (*jets)[0], eventWeight);
 }
 
-EL::StatusCode LeadingJetKinematicHists::execute( const xAOD::Jet* jet, float eventWeight ) {
+StatusCode LeadingJetKinematicHists::execute( const xAOD::Jet* jet, float eventWeight ) {
 
   //basic
   m_jetPt ->        Fill( jet->pt()/1e3,    eventWeight );
@@ -52,5 +52,5 @@ EL::StatusCode LeadingJetKinematicHists::execute( const xAOD::Jet* jet, float ev
     m_jetTau21->Fill( Tau2(*jet)/Tau1(*jet), eventWeight );
   }
 
-  return EL::StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }

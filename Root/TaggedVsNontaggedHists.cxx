@@ -7,7 +7,7 @@ TaggedVsNontaggedHists :: TaggedVsNontaggedHists (std::string name, std::string 
 
 TaggedVsNontaggedHists :: ~TaggedVsNontaggedHists () {}
 
-EL::StatusCode TaggedVsNontaggedHists::initialize() {
+StatusCode TaggedVsNontaggedHists::initialize() {
 
   m_WJ_DR           = book(m_name, "DR(J,W1)", "| #Delta R(J^{1}, W^{1}) |", 100, 0, 2*TMath::Pi());
   m_WJ_DEta         = book(m_name, "DEta(J,W1)", "| #Delta #eta (J^{1}, W^{1}) |", 100, 0, 10);
@@ -20,10 +20,10 @@ EL::StatusCode TaggedVsNontaggedHists::initialize() {
 
   Info("TaggedVsNontaggedHists::initialize()", m_name.c_str());
 
-  return EL::StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
-EL::StatusCode TaggedVsNontaggedHists::execute( const xAOD::Jet* leading_wtaggedJet, const xAOD::Jet* leading_nontaggedJet, float eventWeight){
+StatusCode TaggedVsNontaggedHists::execute( const xAOD::Jet* leading_wtaggedJet, const xAOD::Jet* leading_nontaggedJet, float eventWeight){
 
     TLorentzVector wjet = leading_wtaggedJet->p4();
     TLorentzVector nonwjet = leading_nontaggedJet->p4();
@@ -37,5 +37,5 @@ EL::StatusCode TaggedVsNontaggedHists::execute( const xAOD::Jet* leading_wtagged
     m_WJ_eta -> Fill( leading_wtaggedJet->eta(), leading_nontaggedJet->eta(), eventWeight);
     m_WJ_phi -> Fill( leading_wtaggedJet->phi(), leading_nontaggedJet->phi(), eventWeight);
 
-  return EL::StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }

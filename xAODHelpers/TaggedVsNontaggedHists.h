@@ -11,8 +11,8 @@ class TaggedVsNontaggedHists : public HistogramManager
     TaggedVsNontaggedHists(std::string name, std::string detailStr);
     ~TaggedVsNontaggedHists();
 
-    EL::StatusCode initialize();
-    EL::StatusCode execute( const xAOD::Jet* leading_taggedJet, const xAOD::Jet* leading_nontaggedJet, float eventWeight);
+    StatusCode initialize();
+    StatusCode execute( const xAOD::Jet* leading_taggedJet, const xAOD::Jet* leading_nontaggedJet, float eventWeight);
 
     using HistogramManager::book; // make other overloaded version of book() to show up in subclass
     using HistogramManager::execute; // overload

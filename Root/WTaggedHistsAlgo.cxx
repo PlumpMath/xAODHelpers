@@ -142,10 +142,10 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
 {
 
   // load up the w-tagger
-  static JetSubStructureUtils::BosonTag bosonTagger;
+  static JetSubStructureUtils::BosonTag bosonTagger("medium", "smooth", "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_20150528_Ztagging.dat", false, true, true);
 
   const xAOD::EventInfo* eventInfo(nullptr);
-  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, true), "");
+  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, false), "");
 
   float eventWeight(1);
   if( eventInfo->isAvailable< float >( "eventWeight" ) ) {
@@ -154,7 +154,7 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
 
   // this will be the collection processed - no matter what!!
   const xAOD::JetContainer* inJets(nullptr);
-  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(inJets, m_inContainerName, m_event, m_store, true), "Could not retrieve the jet");
+  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(inJets, m_inContainerName, m_event, m_store, false), "Could not retrieve the jet");
 
   if(!inJets->size() > 0) return EL::StatusCode::SUCCESS;
 

@@ -11,8 +11,8 @@ class WTaggedHists : public HistogramManager
     WTaggedHists(std::string name, std::string detailStr);
     ~WTaggedHists();
 
-    EL::StatusCode initialize();
-    EL::StatusCode execute( const xAOD::JetContainer* jets, float eventWeight );
+    StatusCode initialize();
+    StatusCode execute( const xAOD::JetContainer* jets, float eventWeight );
 
     using HistogramManager::book; // make other overloaded version of book() to show up in subclass
     using HistogramManager::execute; // overload
