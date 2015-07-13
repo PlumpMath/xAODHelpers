@@ -20,10 +20,20 @@ int main( int argc, char* argv[] ) {
   // Construct the samples to run on:
   SH::SampleHandler sh;
 
+  /*
   // get the data path for xAODAnaHelpers/data
   std::string dataPath = gSystem->ExpandPathName("/share/t3data/kratsg/xAODs");
   SH::DiskListLocal list (dataPath);
   SH::scanDir (sh, list, "*.root.1", "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.DAOD_JETM8.e2928_s1982_s2008_r5787_r5853_p1845_tid04894526_00");
+  */
+
+  SH::DiskListLocal list("/share/t3data3/kratsg/xAODs");
+  SH::scanDir(sh, list, "*", "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.DAOD_SUSY4.e2928_s1982_s2008_r5787_r5853_p1862_tid05130501_00");
+
+  /*
+  SH::DiskListLocal list("/share/home/kratsg");
+  SH::scanDir(sh, list, "DAOD*.root", "xAODAnalysis");
+  */
 
   // Set the name of the input TTree. It's always "CollectionTree"
   // for xAOD files.

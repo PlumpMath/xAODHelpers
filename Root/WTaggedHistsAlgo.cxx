@@ -3,6 +3,8 @@
 #include <EventLoop/Worker.h>
 
 #include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
+
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "AthContainers/ConstDataVector.h"
@@ -142,7 +144,7 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
 {
 
   // load up the w-tagger
-  static JetSubStructureUtils::BosonTag bosonTagger("medium", "smooth", "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_20150528_Ztagging.dat", false, true, true);
+  static JetSubStructureUtils::BosonTag bosonTagger("medium", "smooth", "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_20150528_Wtagging.dat", true, true);
 
   const xAOD::EventInfo* eventInfo(nullptr);
   RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, false), "");
@@ -201,6 +203,34 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
         Info("execute()", "More than 2 W-tags???");
       break;
   }
+
+  ConstDataVector<xAOD::JetContainer>* testJetsCDV(new ConstDataVector<xAOD::JetContainer>(SG::VIEW_ELEMENTS));
+  for(const auto jet: *inJets){
+    // skip anythin less than 100 GeV
+    if(jet->pt()/1e3 < 100.) continue;
+    testJetsCDV->push_back(jet);
+  }
+  RETURN_CHECK("WTaggedHistsAlgo::execute()", m_store->record(testJetsCDV, "TestJets"), "Couldn't record to TStore");
+
+  ConstDataVector<xAOD::JetContainer>* testJetsCDV_retrieve(nullptr);
+  const xAOD::JetContainer* testJets(nullptr);
+  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(testJetsCDV_retrieve, "TestJets", m_event, m_store, true), "Cannot retrieve as CDV");
+  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(testJets, "TestJets", m_event, m_store, true), "Cannot retrieve as const");
+
+  typedef xAOD::JetContainer T1;
+  typedef xAOD::JetAuxContainer T2;
+  typedef xAOD::Jet T3;
+  auto cont = inJets;
+
+  T1* cont_new = new T1;
+  T2* auxcont_new = new T2;
+  cont_new->setStore(auxcont_new);
+
+  for(const auto p: *cont)
+    cont_new->push_back(new T3(*p));
+
+  if(!m_store->record(cont_new, "TestDeepCopyJets").isSuccess()) return EL::StatusCode::FAILURE;
+  if(!m_store->record(auxcont_new, "TestDeepCopyJetsAux.").isSuccess()) return EL::StatusCode::FAILURE;
 
   return EL::StatusCode::SUCCESS;
 }
