@@ -6,7 +6,8 @@
 #include "SampleHandler/DiskListLocal.h"
 #include <TSystem.h>
 
-#include "xAODHelpers/JetKinematics.h"
+#include "xAODHelpers/JetReclustering.h"
+#include <xAODJetReclustering/JetReclusteringAlgo.h>
 
 int main( int argc, char* argv[] ) {
 
@@ -20,12 +21,12 @@ int main( int argc, char* argv[] ) {
   // Construct the samples to run on:
   SH::SampleHandler sh;
 
-  const char* inputFilePath = "/share/t3data/kratsg/xAODs";
+  const char* inputFilePath = "/share/t3data3/kratsg/xAODs";
   SH::DiskListLocal list (inputFilePath);
   /* 2.0.23
   SH::scanDir (sh, list, "*.root*", "*110351*"); // specifying one particular sample
   */
-  SH::scanDir (sh, list, "AOD.01604209._000001.pool.root.1");
+  SH::scanDir (sh, list, "*", "mc15*JETM8*");
 
   // Set the name of the input TTree. It's always "CollectionTree"
   // for xAOD files.
@@ -38,35 +39,21 @@ int main( int argc, char* argv[] ) {
   EL::Job job;
   job.sampleHandler( sh );
 
+  // initialize and set it up
+  JetReclusteringAlgo* jetReclusterer = new JetReclusteringAlgo();
+  jetReclusterer->m_inputJetContainer = "AntiKt4LCTopoJets";
+  jetReclusterer->m_outputJetContainer = "AntiKt10LCTopoJetsRCAntiKt4LCTopoJets";
+  jetReclusterer->m_name = "R10"; // unique name for the tool
+  jetReclusterer->m_ptMin_input = 25.0; // GeV
+  jetReclusterer->m_ptMin_rc = 50.0; // GeV
+  jetReclusterer->m_ptFrac = 0.05; // GeV
+
   // Add our analysis to the job:
-  JetKinematics* jk_AntiKt10LC = new JetKinematics();
-  /* This is the default container used */
-  jk_AntiKt10LC->m_jetContainerName = "AntiKt10LCTopoJets";
-  jk_AntiKt10LC->m_jetDisplayName = "AntiKt10";
-  jk_AntiKt10LC->m_jetDetailStr = "foo";
-
-  JetKinematics* jk_AntiKt4LC = new JetKinematics();
-  /* This is the default container used */
-  jk_AntiKt4LC->m_jetContainerName = "AntiKt4LCTopoJets";
-  jk_AntiKt4LC->m_jetDisplayName = "AntiKt4";
-  jk_AntiKt4LC->m_jetDetailStr = "foo";
-
-  JetKinematics* jk_AntiKt4Truth = new JetKinematics();
-  jk_AntiKt4Truth->m_jetContainerName = "AntiKt4TruthJets";
-  jk_AntiKt4Truth->m_jetDisplayName = "Truth4";
-  jk_AntiKt4Truth->m_jetDetailStr = "foo";
-
-  // this is an xAOD::JetTrigContainer
-  JetKinematics* jk_HLT = new JetKinematics();
-  jk_HLT->m_jetContainerName = "HLT_xAOD__JetContainer_TrigHLTJetRec";
-  jk_HLT->m_jetDisplayName = "HLT";
-  jk_HLT->m_jetDetailStr = "foo";
+  JetReclustering* jc = new JetReclustering();
 
   // Attach algorithms
-  job.algsAdd( jk_AntiKt10LC );
-  job.algsAdd( jk_AntiKt4LC );
-  job.algsAdd( jk_AntiKt4Truth );
-  job.algsAdd( jk_HLT );
+  job.algsAdd(jetReclusterer);
+  //job.algsAdd( jc );
 
 
   // Run the job using the local/direct driver:

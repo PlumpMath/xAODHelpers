@@ -7,25 +7,16 @@
 #include <xAODRootAccess/TEvent.h>
 #include <xAODRootAccess/TStore.h>
 
-// jet definition
-#include <fastjet/JetDefinition.hh>
+class JetReclusteringTool;
 
 class JetReclustering : public EL::Algorithm
 {
-public:
-  std::string m_inputJetName,
-              m_outputJetName,
-              m_clusteringAlgorithmName,
-              m_outputXAODName;
-  float m_radius = 1.0;
-  bool m_debug = false;
-
 private:
   /* For counting and statistics */
   xAOD::TEvent *m_event; //!
   xAOD::TStore *m_store; //!
 
-  fastjet::JetAlgorithm m_clusteringAlgorithm; //!
+ JetReclusteringTool*  m_jetReclusteringTool; //!
 
 public:
   // this is a standard constructor
