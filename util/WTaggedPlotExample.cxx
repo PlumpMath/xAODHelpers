@@ -6,7 +6,7 @@
 #include "SampleHandler/DiskListLocal.h"
 #include <TSystem.h>
 
-#include <xAODHelpers/WTaggedHistsAlgo.h>
+#include <xAODHelpers/TaggedHistsAlgo.h>
 
 int main( int argc, char* argv[] ) {
 
@@ -26,7 +26,7 @@ int main( int argc, char* argv[] ) {
   // SH::scanDir (sh, list, "r20test_AOD.pool.root", "xAODAnaHelpers"); // specifying one particular sample
   SH::scanDir (sh, list, "r20test_AOD.pool.root"); // specifying one particular sample
 
-   
+
 
   // Set the name of the input TTree. It's always "CollectionTree"
   // for xAOD files.
@@ -40,7 +40,7 @@ int main( int argc, char* argv[] ) {
   job.sampleHandler( sh );
 
   // Add our analysis to the job:
-  WTaggedHistsAlgo* jk_AntiKt10LC = new WTaggedHistsAlgo("AntiKt10/", "$ROOTCOREBIN/data/xAODAnaHelpers/test_jetPlotExample.config");
+  TaggedHistsAlgo* jk_AntiKt10LC = new TaggedHistsAlgo("AntiKt10/", "$ROOTCOREBIN/data/xAODAnaHelpers/test_jetPlotExample.config");
 
   // Attach algorithms
   job.algsAdd( jk_AntiKt10LC );

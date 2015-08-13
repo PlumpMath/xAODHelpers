@@ -3,36 +3,37 @@
 #include <EventLoop/Worker.h>
 
 #include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "AthContainers/ConstDataVector.h"
 
-#include <xAODHelpers/WTaggedHists.h>
+#include <xAODHelpers/TaggedHists.h>
 #include <xAODHelpers/TaggedVsNontaggedHists.h>
 #include <xAODHelpers/LeadingJetKinematicHists.h>
 
-#include <xAODHelpers/WTaggedHistsAlgo.h>
+#include <xAODHelpers/TaggedHistsAlgo.h>
 #include <xAODAnaHelpers/HelperFunctions.h>
 #include <xAODAnaHelpers/HelperClasses.h>
 
 #include <xAODAnaHelpers/tools/ReturnCheck.h>
 #include <xAODAnaHelpers/tools/ReturnCheckConfig.h>
 
-// w-boson tag
-#include "JetSubStructureUtils/BosonTag.h"
+// h tagger
+#include "JetSubStructureUtils/BoostedXbbTag.h"
 
 #include "TEnv.h"
 #include "TSystem.h"
 
 // this is needed to distribute the algorithm to the workers
-ClassImp(WTaggedHistsAlgo)
+ClassImp(TaggedHistsAlgo)
 
-WTaggedHistsAlgo :: WTaggedHistsAlgo () {
+TaggedHistsAlgo :: TaggedHistsAlgo () {
 }
 
-WTaggedHistsAlgo :: WTaggedHistsAlgo (std::string name, std::string configName) :
+TaggedHistsAlgo :: TaggedHistsAlgo (std::string name, std::string configName) :
   Algorithm(),
   m_name(name),
   m_configName(configName),
@@ -48,15 +49,15 @@ WTaggedHistsAlgo :: WTaggedHistsAlgo (std::string name, std::string configName) 
 {
 }
 
-EL::StatusCode WTaggedHistsAlgo :: setupJob (EL::Job& job)
+EL::StatusCode TaggedHistsAlgo :: setupJob (EL::Job& job)
 {
   job.useXAOD();
-  xAOD::Init("WTaggedHistsAlgo").ignore();
+  xAOD::Init("TaggedHistsAlgo").ignore();
 
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode WTaggedHistsAlgo :: histInitialize ()
+EL::StatusCode TaggedHistsAlgo :: histInitialize ()
 {
 
   Info("histInitialize()", "%s", m_name.c_str() );
@@ -71,9 +72,9 @@ EL::StatusCode WTaggedHistsAlgo :: histInitialize ()
 
 
   // declare class and add histograms to output
-  m_plots0W = new WTaggedHists(m_name+"0W", m_detailStr);
-  m_plots1W = new WTaggedHists(m_name+"1W", m_detailStr);
-  m_plots2W = new WTaggedHists(m_name+"2W", m_detailStr);
+  m_plots0W = new TaggedHists(m_name+"0W", m_detailStr);
+  m_plots1W = new TaggedHists(m_name+"1W", m_detailStr);
+  m_plots2W = new TaggedHists(m_name+"2W", m_detailStr);
 
   m_kinematics0W = new LeadingJetKinematicHists(m_name+"0W", m_detailStr, "leading_nonwjet");
   m_kinematics1W = new LeadingJetKinematicHists(m_name+"1W", m_detailStr, "leading_nonwjet");
@@ -106,22 +107,24 @@ EL::StatusCode WTaggedHistsAlgo :: histInitialize ()
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode WTaggedHistsAlgo :: configure ()
+EL::StatusCode TaggedHistsAlgo :: configure ()
 {
   m_configName = gSystem->ExpandPathName( m_configName.c_str() );
-  RETURN_CHECK_CONFIG( "WTaggedHistsAlgo::configure()", m_configName);
+  RETURN_CHECK_CONFIG( "TaggedHistsAlgo::configure()", m_configName);
 
   // the file exists, use TEnv to read it off
   TEnv* config = new TEnv(m_configName.c_str());
   m_inContainerName         = config->GetValue("InputContainer",  "");
+  m_inMuonContainerName     = config->GetValue("InputMuonContainer",  "");
   m_detailStr               = config->GetValue("DetailStr",       "");
   m_decorationName          = config->GetValue("DecorationName", "wtag");
 
   // in case anything was missing or blank...
-  if( m_inContainerName.empty() || m_detailStr.empty() ){
+  if( m_inContainerName.empty() || m_detailStr.empty() || m_inMuonContainerName.empty() ){
     Error("configure()", "One or more required configuration values are empty");
     return EL::StatusCode::FAILURE;
   }
+
   Info("configure()", "Loaded in configuration values");
 
   // everything seems preliminarily ok, let's print config and say we were successful
@@ -129,25 +132,32 @@ EL::StatusCode WTaggedHistsAlgo :: configure ()
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode WTaggedHistsAlgo :: fileExecute () { return EL::StatusCode::SUCCESS; }
-EL::StatusCode WTaggedHistsAlgo :: changeInput (bool /*firstFile*/) { return EL::StatusCode::SUCCESS; }
+EL::StatusCode TaggedHistsAlgo :: fileExecute () { return EL::StatusCode::SUCCESS; }
+EL::StatusCode TaggedHistsAlgo :: changeInput (bool /*firstFile*/) { return EL::StatusCode::SUCCESS; }
 
-EL::StatusCode WTaggedHistsAlgo :: initialize ()
+EL::StatusCode TaggedHistsAlgo :: initialize ()
 {
-  Info("initialize()", "WTaggedHistsAlgo");
+  Info("initialize()", "TaggedHistsAlgo");
   m_event = wk()->xaodEvent();
   m_store = wk()->xaodStore();
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode WTaggedHistsAlgo :: execute ()
+EL::StatusCode TaggedHistsAlgo :: execute ()
 {
 
-  // load up the w-tagger
-  static JetSubStructureUtils::BosonTag bosonTagger("medium", "smooth", "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_20150528_Wtagging.dat", true, true);
+  // load up the Xbb tagger
+  static std::string wk_pt("medium");
+  static std::string recs_file("$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_20150812_Htagging.dat");
+  static std::string boson_type("Higgs");
+  static std::string alg_name("AK10LCTRIMF5R20");
+  static int num_bTags(2);
+  static bool debug(true);
+  static bool verbose(true);
+  static JetSubStructureUtils::BoostedXbbTag HTagger(wk_pt, recs_file, boson_type, alg_name, num_bTags, debug, verbose);
 
   const xAOD::EventInfo* eventInfo(nullptr);
-  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, false), "");
+  RETURN_CHECK("TaggedHistsAlgo::execute()", HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, false), "");
 
   float eventWeight(1);
   if( eventInfo->isAvailable< float >( "eventWeight" ) ) {
@@ -156,21 +166,25 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
 
   // this will be the collection processed - no matter what!!
   const xAOD::JetContainer* inJets(nullptr);
-  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(inJets, m_inContainerName, m_event, m_store, false), "Could not retrieve the jet");
+  RETURN_CHECK("TaggedHistsAlgo::execute()", HelperFunctions::retrieve(inJets, m_inContainerName, m_event, m_store, false), "Could not retrieve the jets");
 
   if(!inJets->size() > 0) return EL::StatusCode::SUCCESS;
 
+  const xAOD::MuonContainer* inMuons(nullptr);
+  RETURN_CHECK("TaggedHistsAlgo::execute()", HelperFunctions::retrieve(inMuons, m_inMuonContainerName, m_event, m_store, false), "Could not retrieve the muons");
+
+
   // original containers are sorted by pt
   ConstDataVector<xAOD::JetContainer> nontaggedJets(SG::VIEW_ELEMENTS);
-  ConstDataVector<xAOD::JetContainer> wtaggedJets(SG::VIEW_ELEMENTS);
+  ConstDataVector<xAOD::JetContainer> taggedJets(SG::VIEW_ELEMENTS);
 
   // loop over, split into two containers
   for(const auto jet: *inJets){
     // skip anythin less than 2.5 GeV
     if(jet->pt()/1e3 < 2.5) continue;
 
-    if(bosonTagger.result(*jet)) {
-      wtaggedJets.push_back(jet);
+    if(HTagger.result(*jet, "AK10LCTRIMF5R20", inMuons)) {
+      taggedJets.push_back(jet);
     } else {
       nontaggedJets.push_back(jet);
     }
@@ -178,11 +192,11 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
 
   // convert back to actual const containers
   const xAOD::JetContainer* nontagged_jets  = nontaggedJets.asDataVector();
-  const xAOD::JetContainer* wtagged_jets    = wtaggedJets.asDataVector();
+  const xAOD::JetContainer* tagged_jets    = taggedJets.asDataVector();
 
-  if(nontagged_jets->size() == 0 || wtagged_jets == 0) return EL::StatusCode::SUCCESS;
+  if(nontagged_jets->size() == 0 || tagged_jets == 0) return EL::StatusCode::SUCCESS;
 
-  switch( static_cast<int>(wtagged_jets->size()) ){
+  switch( static_cast<int>(tagged_jets->size()) ){
       case 0:
         m_plots0W->execute( inJets, eventWeight );
         m_kinematics0W->execute( (*nontagged_jets)[0], eventWeight );
@@ -190,55 +204,27 @@ EL::StatusCode WTaggedHistsAlgo :: execute ()
       case 1:
         m_plots1W->execute( inJets, eventWeight );
         m_kinematics1W->execute( (*nontagged_jets)[0], eventWeight );
-        m_w_kinematics1W->execute( (*wtagged_jets)[0], eventWeight );
-        m_taggedVsNonTagged1W->execute( (*wtagged_jets)[0], (*nontagged_jets)[0], eventWeight );
+        m_w_kinematics1W->execute( (*tagged_jets)[0], eventWeight );
+        m_taggedVsNonTagged1W->execute( (*tagged_jets)[0], (*nontagged_jets)[0], eventWeight );
       break;
       case 2:
         m_plots2W->execute( inJets, eventWeight );
         m_kinematics2W->execute( (*nontagged_jets)[0], eventWeight );
-        m_w_kinematics2W->execute( (*wtagged_jets)[0], eventWeight );
-        m_taggedVsNonTagged2W->execute( (*wtagged_jets)[0], (*nontagged_jets)[0], eventWeight );
+        m_w_kinematics2W->execute( (*tagged_jets)[0], eventWeight );
+        m_taggedVsNonTagged2W->execute( (*tagged_jets)[0], (*nontagged_jets)[0], eventWeight );
       break;
       default:
         Info("execute()", "More than 2 W-tags???");
       break;
   }
 
-  ConstDataVector<xAOD::JetContainer>* testJetsCDV(new ConstDataVector<xAOD::JetContainer>(SG::VIEW_ELEMENTS));
-  for(const auto jet: *inJets){
-    // skip anythin less than 100 GeV
-    if(jet->pt()/1e3 < 100.) continue;
-    testJetsCDV->push_back(jet);
-  }
-  RETURN_CHECK("WTaggedHistsAlgo::execute()", m_store->record(testJetsCDV, "TestJets"), "Couldn't record to TStore");
-
-  ConstDataVector<xAOD::JetContainer>* testJetsCDV_retrieve(nullptr);
-  const xAOD::JetContainer* testJets(nullptr);
-  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(testJetsCDV_retrieve, "TestJets", m_event, m_store, true), "Cannot retrieve as CDV");
-  RETURN_CHECK("WTaggedHistsAlgo::execute()", HelperFunctions::retrieve(testJets, "TestJets", m_event, m_store, true), "Cannot retrieve as const");
-
-  typedef xAOD::JetContainer T1;
-  typedef xAOD::JetAuxContainer T2;
-  typedef xAOD::Jet T3;
-  auto cont = inJets;
-
-  T1* cont_new = new T1;
-  T2* auxcont_new = new T2;
-  cont_new->setStore(auxcont_new);
-
-  for(const auto p: *cont)
-    cont_new->push_back(new T3(*p));
-
-  if(!m_store->record(cont_new, "TestDeepCopyJets").isSuccess()) return EL::StatusCode::FAILURE;
-  if(!m_store->record(auxcont_new, "TestDeepCopyJetsAux.").isSuccess()) return EL::StatusCode::FAILURE;
-
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode WTaggedHistsAlgo :: postExecute () { return EL::StatusCode::SUCCESS; }
-EL::StatusCode WTaggedHistsAlgo :: finalize () { return EL::StatusCode::SUCCESS; }
+EL::StatusCode TaggedHistsAlgo :: postExecute () { return EL::StatusCode::SUCCESS; }
+EL::StatusCode TaggedHistsAlgo :: finalize () { return EL::StatusCode::SUCCESS; }
 
-EL::StatusCode WTaggedHistsAlgo :: histFinalize () {
+EL::StatusCode TaggedHistsAlgo :: histFinalize () {
   // clean up memory
   for(auto plotGroup: m_plotsHolder){
     if(plotGroup){

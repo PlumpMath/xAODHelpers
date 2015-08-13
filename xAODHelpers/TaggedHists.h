@@ -1,15 +1,15 @@
-#ifndef xAODHelpers_WTaggedHists_H
-#define xAODHelpers_WTaggedHists_H
+#ifndef xAODHelpers_TaggedHists_H
+#define xAODHelpers_TaggedHists_H
 
 #include "xAODAnaHelpers/HistogramManager.h"
 #include <xAODJet/JetContainer.h>
 
-class WTaggedHists : public HistogramManager
+class TaggedHists : public HistogramManager
 {
   public:
 
-    WTaggedHists(std::string name, std::string detailStr);
-    ~WTaggedHists();
+    TaggedHists(std::string name, std::string detailStr);
+    ~TaggedHists();
 
     StatusCode initialize();
     StatusCode execute( const xAOD::JetContainer* jets, float eventWeight );

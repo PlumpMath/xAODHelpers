@@ -6,7 +6,7 @@
 #include "SampleHandler/DiskListLocal.h"
 #include <TSystem.h>
 
-#include <xAODHelpers/WTaggedHistsAlgo.h>
+#include <xAODHelpers/TaggedHistsAlgo.h>
 
 int main( int argc, char* argv[] ) {
 
@@ -20,15 +20,15 @@ int main( int argc, char* argv[] ) {
   // Construct the samples to run on:
   SH::SampleHandler sh;
 
-  /*
   // get the data path for xAODAnaHelpers/data
-  std::string dataPath = gSystem->ExpandPathName("/share/t3data/kratsg/xAODs");
+  std::string dataPath = gSystem->ExpandPathName("/share/t3data3/kratsg/xAODs");
   SH::DiskListLocal list (dataPath);
-  SH::scanDir (sh, list, "*.root.1", "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.DAOD_JETM8.e2928_s1982_s2008_r5787_r5853_p1845_tid04894526_00");
-  */
+  SH::scanDir (sh, list, "*.root.1", "mc15_13TeV.361027.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ7W.merge.DAOD_JETM8.e3668_s2616_s2183_r6655_r6264_p2375_tid05894240_00");
 
+  /*
   SH::DiskListLocal list("/share/t3data3/kratsg/xAODs");
   SH::scanDir(sh, list, "*", "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.DAOD_SUSY4.e2928_s1982_s2008_r5787_r5853_p1862_tid05130501_00");
+  */
 
   /*
   SH::DiskListLocal list("/share/home/kratsg");
@@ -47,10 +47,10 @@ int main( int argc, char* argv[] ) {
   job.sampleHandler( sh );
 
   // Add our analysis to the job:
-  WTaggedHistsAlgo* plotWTags = new WTaggedHistsAlgo("wtags_", "$ROOTCOREBIN/data/xAODHelpers/test_plotWTagExample.config");
+  TaggedHistsAlgo* plotTags = new TaggedHistsAlgo("wtags_", "$ROOTCOREBIN/data/xAODHelpers/test_plotHTagExample.config");
 
   // Attach algorithms
-  job.algsAdd( plotWTags );
+  job.algsAdd( plotTags );
 
   // Run the job using the local/direct driver:
   EL::DirectDriver driver;

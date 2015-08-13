@@ -1,5 +1,5 @@
-#ifndef xAODHelpers_WTaggedHistsAlgo_H
-#define xAODHelpers_WTaggedHistsAlgo_H
+#ifndef xAODHelpers_TaggedHistsAlgo_H
+#define xAODHelpers_TaggedHistsAlgo_H
 
 #include <EventLoop/Algorithm.h>
 #include <EventLoop/StatusCode.h>
@@ -9,13 +9,13 @@
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
 
-class WTaggedHists;
+class TaggedHists;
 class LeadingJetKinematicHists;
 class TaggedVsNontaggedHists;
 
 class HistogramManager;
 
-class WTaggedHistsAlgo : public EL::Algorithm
+class TaggedHistsAlgo : public EL::Algorithm
 {
   // put your configuration variables here as public variables.
   // that way they can be set directly from CINT and python.
@@ -30,9 +30,9 @@ public:
 
 
 private:
-  WTaggedHists* m_plots0W; //!
-  WTaggedHists* m_plots1W; //!
-  WTaggedHists* m_plots2W; //!
+  TaggedHists* m_plots0W; //!
+  TaggedHists* m_plots1W; //!
+  TaggedHists* m_plots2W; //!
 
   LeadingJetKinematicHists* m_kinematics0W; //!
   LeadingJetKinematicHists* m_kinematics1W; //!
@@ -50,6 +50,7 @@ private:
 
   // configuration variables
   std::string m_inContainerName;  //!
+  std::string m_inMuonContainerName;  //!
   std::string m_detailStr;        //!
 
   // variables that don't get filled at submission time should be
@@ -62,8 +63,8 @@ public:
 
 
   // this is a standard constructor
-  WTaggedHistsAlgo ();
-  WTaggedHistsAlgo (std::string name, std::string configName);
+  TaggedHistsAlgo ();
+  TaggedHistsAlgo (std::string name, std::string configName);
 
   // these are the functions inherited from Algorithm
   virtual EL::StatusCode setupJob (EL::Job& job);
@@ -80,7 +81,7 @@ public:
   virtual EL::StatusCode configure ();
 
   // this is needed to distribute the algorithm to the workers
-  ClassDef(WTaggedHistsAlgo, 1);
+  ClassDef(TaggedHistsAlgo, 1);
 };
 
 #endif

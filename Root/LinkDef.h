@@ -9,8 +9,8 @@
 #endif
 
 /*This was automatically inserted by xAH_scaffold.py*/
-#include <xAODHelpers/WTaggedHistsAlgo.h>
+#include <xAODHelpers/TaggedHistsAlgo.h>
 #ifdef __CINT__
-#pragma link C++ class WTaggedHistsAlgo+;
+#pragma link C++ class TaggedHistsAlgo+;
 #endif
 /*This was automatically inserted by xAH_scaffold.py*/
