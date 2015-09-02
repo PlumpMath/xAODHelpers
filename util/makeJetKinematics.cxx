@@ -52,8 +52,8 @@ int main( int argc, char* argv[] ) {
   JetReclustering* jc = new JetReclustering();
 
   // Attach algorithms
-  job.algsAdd(jetReclusterer);
-  //job.algsAdd( jc );
+  //job.algsAdd(jetReclusterer);
+  job.algsAdd( jc );
 
 
   // Run the job using the local/direct driver:

@@ -38,8 +38,7 @@ EL::StatusCode JetReclustering :: initialize ()
 
   m_jetReclusteringTool = new JetReclusteringTool("Fakey");
   RETURN_CHECK("JetReclustering::initialize()", m_jetReclusteringTool->setProperty("InputJetContainer", "AntiKt4LCTopoJets"), "");
-  //RETURN_CHECK("JetReclustering::initialize()", m_jetReclusteringTool->setProperty("InputJetContainer",  "InputJetsForReclustering"), "");
-  RETURN_CHECK("JetReclustering::initialize()", m_jetReclusteringTool->setProperty("OutputJetContainer", "OutputJetsAfter"), "");
+  RETURN_CHECK("JetReclustering::initialize()", m_jetReclusteringTool->setProperty("OutputJetContainer", "RCJets"), "");
   RETURN_CHECK("JetReclustering::initialize()", m_jetReclusteringTool->initialize(), "");
 
   return EL::StatusCode::SUCCESS;
@@ -51,36 +50,26 @@ EL::StatusCode JetReclustering :: execute ()
   const xAOD::EventInfo* eventInfo(nullptr);
   RETURN_CHECK("JetReclustering::execute()", HelperFunctions::retrieve( eventInfo, "EventInfo", m_event, 0, false), "Could not retrieve EventInfo object.");
 
-  // grab the small radius jets
-  const xAOD::JetContainer* smallRjets(nullptr);
-  RETURN_CHECK("JetReclustering::execute()", HelperFunctions::retrieve( smallRjets, "AntiKt4LCTopoJets", m_event, m_store, false), "Could not retrieve smallRjet object.");
+  m_jetReclusteringTool->execute();
 
-  const xAOD::JetContainer* largeRjets(nullptr);
-  RETURN_CHECK("JetReclustering::execute()", HelperFunctions::retrieve( largeRjets, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", m_event, m_store, false), "Could not retrieve largeRjet object.");
+  // grab the rc jets
+  const xAOD::JetContainer* rc_jets(nullptr);
+  RETURN_CHECK("JetReclustering::execute()", HelperFunctions::retrieve( rc_jets, "RCJets", m_event, m_store, false), "Could not retrieve RCJets object.");
 
-  /*
-  xAOD::JetContainer* jets(new xAOD::JetContainer);
-  xAOD::JetAuxContainer* jets_aux(new xAOD::JetAuxContainer);
-  jets->setStore(jets_aux);
+  Info("execute()", "\r\n\r\n\r\n");
+  for(auto jet: *rc_jets){
+    const xAOD::Jet* subjet(nullptr);
+    const xAOD::BTagging* btag(nullptr);
+    for(auto constit: jet->getConstituents()){
+      subjet = static_cast<const xAOD::Jet*>(constit->rawConstituent());
+      btag = subjet->btagging();
+      if(btag)
+        Info("execute()", "btagging: %0.6f", btag->MV1_discriminant());
 
-  for(const auto jet: *largeRjets){
-    for(const auto constit: jet->getConstituents()){
-      xAOD::Jet* jet_new(new xAOD::Jet(constit));
-      jets->push_back(jet_new);
+      Info("execute()", "\tsubjet pt: %0.6f", subjet->pt());
     }
   }
 
-  for(const auto jet: *smallRjets){
-    xAOD::Jet* jet_new(new xAOD::Jet(*jet));
-    jets->push_back(jet_new);
-  }
-
-  static std::string containerName = "InputJetsForReclustering";
-  RETURN_CHECK("JetReclustering::execute()", m_store->record(jets, containerName), "Can't record container");
-  RETURN_CHECK("JetReclustering::execute()", m_store->record(jets_aux, containerName+"Aux."), "Can't record aux container");
-  */
-
-  m_jetReclusteringTool->execute();
 
   return EL::StatusCode::SUCCESS;
 }
